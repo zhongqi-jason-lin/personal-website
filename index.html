@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Zhongqi "Jason" Lin</title>
+<meta name="description" content="Zhongqi &quot;Jason&quot; Lin — PhD Candidate in Genetics, Greco Lab, Yale University. Live imaging of skin stem cells in mice."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  // Set user's saved theme before first paint (prevents flash).
+  (function(){
+    try{
+      var t=localStorage.getItem('theme');
+      if(t==='light'||t==='dark') document.documentElement.setAttribute('data-theme',t);
+    }catch(e){}
+  })();
+</script>
+<style>
+  :root{
+    --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",system-ui,sans-serif;
+    --serif:"Instrument Serif",Georgia,serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --paper:#fafaf8; --paper-2:#f0efe9; --ink:#111; --ink-soft:#555; --ink-faint:#888; --rule:#e5e3dc;
+    --accent:oklch(0.72 0.12 205); --accent-soft:oklch(0.72 0.12 205 / 0.15);
+  }
+  /* Follow OS preference by default */
+  @media (prefers-color-scheme: dark){
+    :root{--paper:#0f0f10;--paper-2:#1a1a1c;--ink:#f4f3ef;--ink-soft:#b5b2aa;--ink-faint:#7a776f;--rule:#2a2a2c;}
+  }
+  /* Explicit user overrides — higher specificity than :root, beat the media query */
+  :root[data-theme="light"]{--paper:#fafaf8;--paper-2:#f0efe9;--ink:#111;--ink-soft:#555;--ink-faint:#888;--rule:#e5e3dc;}
+  :root[data-theme="dark"]{--paper:#0f0f10;--paper-2:#1a1a1c;--ink:#f4f3ef;--ink-soft:#b5b2aa;--ink-faint:#7a776f;--rule:#2a2a2c;}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sf);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
+  /* Fallback crossfade for browsers without View Transitions API (Safari <18, older FF).
+     Includes SVG primitives so the map's stroke colors fade in sync with the surrounding DOM. */
+  body,body *{transition:background-color .35s ease,color .35s ease,border-color .35s ease,fill .35s ease,stroke .35s ease,box-shadow .35s ease,opacity .35s ease}
+  /* View Transitions API — full-page snapshot crossfade in modern browsers */
+  @supports (view-transition-name:root){
+    ::view-transition-old(root),::view-transition-new(root){animation-duration:.4s;animation-timing-function:cubic-bezier(.4,0,.2,1);mix-blend-mode:normal}
+    ::view-transition-old(root){animation-name:themeFadeOut}
+    ::view-transition-new(root){animation-name:themeFadeIn}
+    @keyframes themeFadeOut{to{opacity:0}}
+    @keyframes themeFadeIn{from{opacity:0}}
+    /* When VT is supported, skip the per-element CSS transitions (VT handles it) */
+    .vt-in-flight,.vt-in-flight *{transition:none!important}
+  }
+  @media (prefers-reduced-motion:reduce){
+    body,body *{transition:none!important}
+    ::view-transition-old(root),::view-transition-new(root){animation-duration:.01ms!important}
+  }
+  a{color:var(--accent);text-decoration:none}
+  a:hover{opacity:.75}
+
+  .variation{display:none}
+  .variation[data-active="true"]{display:block}
+
+  /* Shared teaser container */
+  .teaser{background:var(--paper-2);position:relative;overflow:hidden;border-radius:6px}
+  .teaser svg{position:absolute;inset:0;width:100%;height:100%}
+
+  /* Theme toggle — small floating icon button, bottom-right */
+  #theme-toggle{position:fixed;right:1rem;bottom:1rem;z-index:150;width:40px;height:40px;background:var(--paper);color:var(--ink-soft);border:1px solid var(--rule);border-radius:50%;cursor:pointer;padding:0;box-shadow:0 8px 20px -12px rgba(0,0,0,.25)}
+  #theme-toggle:hover{color:var(--ink);border-color:var(--ink)}
+  /* Both icons sit in the exact center of the button; only opacity toggles */
+  #theme-toggle svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:opacity .35s ease}
+  #theme-toggle .sun{opacity:1}
+  #theme-toggle .moon{opacity:0}
+  :root.is-dark #theme-toggle .sun{opacity:0}
+  :root.is-dark #theme-toggle .moon{opacity:1}
+</style>
+</head>
+<body>
+<section class="variation" data-active="true" data-screen-label="F Gallery" id="v8"></section>
+
+<button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+  <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+</button>
+
+<script src="scripts/data.js"></script>
+<script src="scripts/teaser.js"></script>
+<script src="scripts/vmap.js"></script>
+<script src="scripts/v8_gallery.js"></script>
+<script>
+  // Theme toggle: flips between light and dark, saves choice, reflects OS changes when no choice is saved.
+  // Uses the View Transitions API for a full-page snapshot crossfade when the browser supports it
+  // (Chrome 111+, Safari 18+, FF 127+); falls back to per-element CSS transitions otherwise.
+  (function(){
+    const root=document.documentElement;
+    const btn=document.getElementById('theme-toggle');
+    const mq=matchMedia('(prefers-color-scheme: dark)');
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+    const resolved=()=>{
+      const t=root.getAttribute('data-theme');
+      return (t==='light'||t==='dark') ? t : (mq.matches?'dark':'light');
+    };
+    const sync=()=>root.classList.toggle('is-dark',resolved()==='dark');
+    sync();
+
+    const applyTheme=(next)=>{
+      root.setAttribute('data-theme',next);
+      try{localStorage.setItem('theme',next)}catch(e){}
+      sync();
+    };
+
+    btn.addEventListener('click',()=>{
+      const next=resolved()==='dark'?'light':'dark';
+      if(document.startViewTransition && !reduced.matches){
+        // Mark the document so the property-level fallback transitions don't fight the VT snapshot.
+        root.classList.add('vt-in-flight');
+        const tr=document.startViewTransition(()=>applyTheme(next));
+        tr.finished.finally(()=>root.classList.remove('vt-in-flight'));
+      }else{
+        applyTheme(next);
+      }
+    });
+    const onMQ=()=>{ if(!root.hasAttribute('data-theme')) sync(); };
+    if(mq.addEventListener) mq.addEventListener('change',onMQ);
+    else if(mq.addListener) mq.addListener(onMQ);
+  })();
+</script>
+</body>
+</html>

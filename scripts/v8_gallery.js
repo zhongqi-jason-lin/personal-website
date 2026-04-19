@@ -1,0 +1,209 @@
+// F · Gallery — museum wall. Bigger left plate, bio above provenance.
+(function(){
+  const root=document.getElementById('v8');const J=window.JASON;
+  const css=`
+  .vF{font-family:var(--sf);color:var(--ink);background:var(--paper)}
+  .vF .stage{display:grid;grid-template-columns:minmax(360px,40%) 1fr;min-height:100vh}
+  @media(max-width:900px){.vF .stage{grid-template-columns:1fr}}
+
+  /* Left plate — scaled up */
+  .vF .plate{background:var(--paper-2);border-right:1px solid var(--rule);padding:2.5rem 2.25rem 3rem;display:flex;flex-direction:column;gap:2rem}
+  .vF .stage{border-bottom:1px solid var(--ink)}
+  .vF .plate .id{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+  .vF .plate .who{display:grid;grid-template-columns:auto 1fr;gap:1.75rem;align-items:stretch}
+  .vF .plate .who-text{display:flex;flex-direction:column;min-height:128px}
+  .vF .plate .pic{width:128px;height:128px;border-radius:50%;background:url('${window.__resources?window.__resources.headshot:"assets/headshot.jpg"}') center/cover,var(--paper);box-shadow:0 14px 30px -16px rgba(0,0,0,.3),0 0 0 5px var(--paper),0 0 0 6px var(--ink)}
+  .vF .plate h1{font-family:var(--serif);font-weight:400;font-size:clamp(32px,3.4vw,44px);line-height:1;letter-spacing:-.02em;margin:0 0 .35rem}
+  .vF .plate h1 em{font-style:italic;color:var(--accent)}
+  .vF .plate .role{font-family:var(--mono);font-size:14.5px;letter-spacing:.06em;color:var(--ink-soft);line-height:1.5}
+  .vF .plate .role b{color:var(--ink);font-weight:500}
+
+  .vF .plate .subject{margin:0 -2.25rem -1rem;padding:2.25rem 2.25rem .75rem;border-top:1px solid var(--ink);display:flex;align-items:center;justify-content:center}
+  .vF .plate .subject .triad{font-family:var(--serif);display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:.4rem .7rem;line-height:1.15}
+  .vF .plate .subject .triad .r{font-size:clamp(17px,1.9vw,22px);font-weight:400;letter-spacing:-.005em;color:var(--ink);white-space:nowrap}
+  .vF .plate .subject .triad .r em{font-style:italic;color:var(--accent)}
+  .vF .plate .subject .triad .op{font-family:var(--serif);font-style:italic;font-size:clamp(16px,1.7vw,20px);color:var(--accent);opacity:.85}
+
+  /* Social links row — left-aligned with the role text, pinned to bottom of column */
+  .vF .plate .social{display:flex;gap:.3rem;align-items:center;justify-content:flex-start;margin-top:auto;padding-top:.5rem}
+  .vF .plate .social a{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--rule);border-radius:50%;color:var(--ink-soft);background:var(--paper);transition:all .15s}
+  .vF .plate .social a:hover{color:var(--paper);background:var(--ink);border-color:var(--ink);opacity:1}
+  .vF .plate .social a svg{width:14px;height:14px;fill:currentColor}
+
+  /* Bio block (new, above provenance) */
+  .vF .plate .bio{font-family:var(--serif);font-size:17.5px;line-height:1.55;color:var(--ink);border-left:3px solid var(--accent);padding:.25rem 0 .25rem 1rem}
+  .vF .plate .bio b{color:var(--accent);font-weight:400;font-style:italic}
+
+  .vF .plate .block h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 .8rem;font-weight:500;display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
+  .vF .plate .block h3 .cv-link{color:var(--ink-soft);font:inherit;letter-spacing:inherit;text-transform:inherit;border-bottom:1px solid transparent;padding-bottom:2px;transition:color .15s,border-color .15s}
+  .vF .plate .block h3 .cv-link:hover{color:var(--accent);border-bottom-color:var(--accent);opacity:1}
+  .vF .plate .rows{display:grid;gap:.15rem}
+  .vF .plate .row{display:grid;grid-template-columns:120px 1fr;gap:.9rem;padding:.65rem 0;border-top:1px dashed var(--rule);align-items:baseline}
+  .vF .plate .row:first-child{border-top:0}
+  .vF .plate .row .y{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);letter-spacing:.04em;padding-top:.15rem}
+  .vF .plate .row .w b{font-family:var(--serif);font-weight:400;font-size:17px;line-height:1.2;color:var(--ink);letter-spacing:-.005em}
+  .vF .plate .row .w em{font-style:italic;color:var(--ink-faint);font-size:14px;display:block;margin-top:.2rem;font-family:var(--serif);letter-spacing:-.005em;line-height:1.3}
+
+  .vF .plate .contact{margin:auto -2.25rem 0;padding:1.25rem 2.25rem 0;border-top:1px solid var(--ink);font-family:var(--mono);font-size:12px;color:var(--ink-soft);letter-spacing:.04em;line-height:1.7;min-height:4.5rem;display:flex;flex-direction:column;justify-content:flex-start}
+  .vF .plate .contact a{color:var(--ink)}
+
+  /* Toolkit in left plate */
+  .vF .plate .skills{margin:0 -2.25rem;padding:0 2.25rem;display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid var(--ink)}
+  .vF .plate .skill{padding:.95rem .75rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:.4rem;min-height:68px}
+  .vF .plate .skill:nth-child(2n){border-right:0}
+  .vF .plate .skill .n{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink-faint)}
+  .vF .plate .skill .t{font-family:var(--serif);font-size:17px;line-height:1.25;letter-spacing:-.005em;color:var(--ink)}
+
+  /* Right hall */
+  .vF .hall{padding:2.5rem 2.5rem 3rem;display:flex;flex-direction:column}
+  .vF .hall .intro{max-width:58ch;margin:0 0 2.5rem;font-family:var(--serif);font-size:20px;line-height:1.45;color:var(--ink)}
+  .vF .hall .intro b{color:var(--accent);font-weight:400;font-style:italic}
+
+  .vF .section-head{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 1.75rem;font-weight:500;display:flex;justify-content:space-between;align-items:baseline}
+  .vF .section-head span{color:var(--ink-faint)}
+
+  .vF .exhibit{margin:0 -2.5rem;padding:1.5rem 2.5rem;border-top:1px solid var(--rule);display:grid;grid-template-columns:64px 1fr;gap:1.25rem}
+  .vF .exhibit:first-of-type{border-top:2px solid var(--ink)}
+  .vF .exhibit .no{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--ink-faint)}
+  .vF .exhibit .no b{display:block;font-size:34px;letter-spacing:-.02em;color:var(--ink);margin-top:.2rem;font-family:var(--serif);font-weight:400}
+  .vF .spec{display:grid;grid-template-columns:minmax(260px,1.1fr) 1fr;gap:1.5rem;align-items:start}
+  @media(max-width:960px){.vF .spec{grid-template-columns:1fr}}
+  .vF .spec .tsr{aspect-ratio:4/3;background:var(--paper-2);color:var(--accent);border:1px solid var(--rule);position:relative;overflow:hidden}
+  .vF .spec .tsr svg{position:absolute;inset:0;width:100%;height:100%}
+  .vF .spec h3{font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.2;letter-spacing:-.01em;margin:0 0 .5rem}
+  .vF .spec h3 a{color:var(--ink);text-decoration:none;background-image:linear-gradient(var(--accent),var(--accent));background-repeat:no-repeat;background-size:0 1px;background-position:0 100%;transition:background-size .25s ease,color .15s}
+  .vF .spec h3 a:hover{color:var(--accent);background-size:100% 1px;opacity:1}
+  .vF .spec h3 a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+  .vF .spec .m{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--ink-faint);margin-bottom:.5rem}
+  .vF .spec .m b{color:var(--accent);font-weight:500}
+  .vF .spec p{font-family:var(--serif);font-size:16.5px;line-height:1.5;color:var(--ink-soft);margin:0 0 .75rem;font-style:italic}
+  .vF .spec p::before{content:"“";color:var(--accent)}
+  .vF .spec p::after{content:"”";color:var(--accent)}
+  .vF .spec .au{font-size:13.5px;color:var(--ink-faint);line-height:1.5}
+  .vF .spec .au b{color:var(--ink);font-weight:500}
+
+  /* Visitors heatmap */
+  .vF .visitors{margin:2.5rem -2.5rem 0;padding:2rem 2.5rem 2.5rem;border-top:1px solid var(--rule)}
+  .vF .vmap{--vmap-blend:multiply;position:relative;aspect-ratio:2/1;width:100%;background:var(--paper-2);border:1px solid var(--rule);overflow:hidden}
+  @media (prefers-color-scheme: dark){.vF .vmap{--vmap-blend:screen}}
+  .vF .vmap svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .vF .vmap .land{fill:none;stroke:var(--ink);stroke-width:.3;opacity:.35;vector-effect:non-scaling-stroke}
+  .vF .vmap .grat{fill:none;stroke:var(--ink);stroke-width:.15;opacity:.12;stroke-dasharray:.8 1.4;vector-effect:non-scaling-stroke}
+  .vF .vmap .bloom circle,
+  .vF .vmap .pools circle{fill:var(--accent);mix-blend-mode:var(--vmap-blend)}
+  .vF .vlegend{display:flex;justify-content:space-between;align-items:baseline;margin-top:.9rem;font-family:var(--mono);font-size:11px;color:var(--ink-faint);letter-spacing:.04em}
+  .vF .vlegend .scale{display:flex;align-items:center;gap:.5rem}
+  .vF .vlegend .chip{width:14px;height:14px;background:var(--accent);border-radius:50%;display:inline-block}
+  .vF .vlegend .chip.s1{opacity:.22}
+  .vF .vlegend .chip.s2{opacity:.48}
+  .vF .vlegend .chip.s3{opacity:.85}
+  .vF .vtable{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:1rem;border-top:1px solid var(--rule)}
+  .vF .vcity{padding:.7rem .7rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:.25rem}
+  .vF .vcity:nth-child(4n){border-right:0}
+  .vF .vcity .cn{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint)}
+  .vF .vcity .c{font-family:var(--serif);font-size:14.5px;color:var(--ink);line-height:1.1;letter-spacing:-.005em}
+  .vF .vcity .p{font-family:var(--mono);font-size:10.5px;color:var(--accent);letter-spacing:.04em}
+  @media(max-width:720px){.vF .vtable{grid-template-columns:repeat(2,1fr)}.vF .vcity:nth-child(4n){border-right:1px solid var(--rule)}.vF .vcity:nth-child(2n){border-right:0}}
+
+  .vF .room{margin-top:2.5rem}
+  .vF .skills{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:2px solid var(--ink)}
+  @media(max-width:720px){.vF .skills{grid-template-columns:repeat(2,1fr)}}
+  .vF .skill{padding:1rem .8rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column;justify-content:space-between;min-height:80px}
+  .vF .skill:nth-child(3n),.vF .skill:last-child{border-right:0}
+  @media(max-width:720px){.vF .skill{border-right:1px solid var(--rule)!important}.vF .skill:nth-child(2n){border-right:0!important}}
+  .vF .skill .n{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-faint)}
+  .vF .skill .t{font-family:var(--serif);font-size:16px;line-height:1.2;letter-spacing:-.005em;margin-top:.5rem;color:var(--ink)}
+
+  .vF .hall .foot{margin:auto -2.5rem 0;padding:1.25rem 2.5rem 0;border-top:1px solid var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-soft);display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start;min-height:4.5rem}
+  .vF .hall .foot a{color:var(--ink)}
+  `;
+  const specs = J.pubs.map((p,i)=>{
+    const title = p.link
+      ? `<a href="${p.link}" target="_blank" rel="noopener">${p.title}</a>`
+      : p.title;
+    return `
+    <div class="exhibit">
+      <div class="no"><span>Exhibit</span><b>${String(i+1).padStart(2,'0')}</b></div>
+      <div class="spec">
+        <div class="tsr">${TEASER(p.teaser)}</div>
+        <div>
+          <div class="m"><b>${p.venue}</b> · ${p.year}</div>
+          <h3>${title}</h3>
+          <p>${p.blurb}</p>
+          <div class="au">${p.authors}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const prov = J.education.map(e=>`<div class="row"><span class="y">${e.year}</span><span class="w"><b>${e.what}</b><em>${e.where}${e.detail?' · '+e.detail:''}</em></span></div>`).join('');
+  const shown = J.talks.map(t=>`<div class="row"><span class="y">${t.year}</span><span class="w"><b>${t.what}</b><em>${t.note}</em></span></div>`).join('');
+  const skills = J.skills.map((s,i)=>`<div class="skill"><span class="n">S.${String(i+1).padStart(2,'0')}</span><span class="t">${s}</span></div>`).join('');
+
+  // Bio highlight for the left block
+  const bioHtml = J.bio.replace('skin regenerates','<b>skin regenerates</b>').replace('transcription dynamics','<b>transcription dynamics</b>');
+
+  root.innerHTML=`<style>${css}</style><div class="vF"><div class="stage">
+    <div class="plate">
+      <div>
+        <span class="id"></span>
+        <div class="who" style="margin-top:.9rem">
+          <div class="pic" aria-hidden="true"></div>
+          <div class="who-text">
+            <h1>Zhongqi <em>"Jason"</em> Lin</h1>
+            <div class="role"><b>${J.role}</b><br>${J.lab} · ${J.institution}</div>
+            <div class="social" aria-label="Contact links">
+              <a href="${J.links.email}" aria-label="Email" title="Email"><svg viewBox="0 0 24 24"><path d="M3 5.5A1.5 1.5 0 0 1 4.5 4h15A1.5 1.5 0 0 1 21 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5v-13zm2 .3v.4l7 4.2 7-4.2v-.4H5zm14 2.56-6.47 3.88a1 1 0 0 1-1.06 0L5 8.36V18h14V8.36z"/></svg></a>
+              <a href="${J.links.github}" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.23c0 4.52 2.87 8.35 6.84 9.71.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.46-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.38 9.38 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.8-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.23C22 6.58 17.52 2 12 2z"/></svg></a>
+              <a href="${J.links.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4v11H3v-11zm7 0h3.83v1.5h.05c.53-1 1.84-2.06 3.79-2.06 4.06 0 4.8 2.67 4.8 6.15V20.5h-4v-4.9c0-1.17-.02-2.67-1.63-2.67-1.64 0-1.89 1.28-1.89 2.59V20.5h-4v-11z"/></svg></a>
+              <a href="${J.links.scholar}" target="_blank" rel="noopener" aria-label="Google Scholar" title="Google Scholar"><svg viewBox="0 0 24 24"><path d="M12 2 1 9l4 2.55V17l7 4 7-4v-5.45L19 10.1V16h2V9L12 2zm0 2.3L18.73 9 12 13.27 5.27 9 12 4.3zM7 12.84l5 3.2 5-3.2V16l-5 2.86L7 16v-3.16z"/></svg></a>
+              <a href="${J.links.greco}" target="_blank" rel="noopener" aria-label="Greco Lab" title="Greco Lab"><svg viewBox="0 0 24 24"><circle cx="6.2" cy="8.5" r="3"/><circle cx="17.8" cy="8.5" r="3"/><circle cx="12" cy="13.8" r="6"/></svg></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subject">
+        <div class="triad" role="figure" aria-label="At the intersection of stem cell biology, microscopy, and data science">
+          <span class="r"><em>Stem Cell</em> Biologist</span>
+          <span class="op">∩</span>
+          <span class="r"><em>Microscop</em>ist</span>
+          <span class="op">∩</span>
+          <span class="r"><em>Data</em> Scientist</span>
+        </div>
+      </div>
+
+      <div class="bio">${bioHtml}</div>
+
+      <div class="block">
+        <h3>Provenance <a class="cv-link" href="${J.links.cv}" download aria-label="Download CV">CV ↓</a></h3>
+        <div class="rows">${prov}</div>
+      </div>
+
+      <div class="block">
+        <h3>Where I've shown my work</h3>
+        <div class="rows">${shown}</div>
+      </div>
+
+      <div class="block">
+        <h3>Toolkit</h3>
+        <div class="skills">${skills}</div>
+      </div>
+
+      <div class="contact">
+        Collection · ${new Date().getFullYear()}
+      </div>
+    </div>
+
+    <div class="hall">
+      <div class="section-head"><span>— Selected works</span></div>
+      ${specs}
+
+      <div class="visitors">
+        <div class="section-head"><span>— Visitors</span><span>All-time</span></div>
+        ${VMAP()}
+      </div>
+
+    </div>
+  </div></div>`;
+})();
