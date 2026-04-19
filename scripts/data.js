@@ -15,7 +15,7 @@ window.JASON = {
     linkedin: 'https://www.linkedin.com/in/zhongqilin',
     scholar: 'https://scholar.google.com/citations?user=jnDn474AAAAJ&hl=en',
     greco: 'https://www.grecolab.org/',
-    cv: 'assets/cv.pdf',
+    cv: 'assets/Zhongqi-Jason-Lin-CV.pdf',
   },
   bio: `I am currently studying how the skin regenerates — tracing stem cell states and transcription dynamics as they organize themselves across tissue, over time, in living mice.`,
   long: `I'm a PhD candidate in Genetics at Yale, working in the lab of Valentina Greco. My work asks how stem cells coordinate with their neighbors during epidermal regeneration — using intravital two-photon microscopy to watch transcription unfold in live mice, and building image-analysis pipelines to quantify what we see.`,
