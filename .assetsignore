@@ -1,0 +1,17 @@
+# Files excluded from the static-asset bundle served by the Worker.
+# Server code and config live in the repo but shouldn't be reachable via HTTP.
+worker/
+wrangler.jsonc
+wrangler.toml
+.assetsignore
+.dev.vars
+.env
+.env.*
+package.json
+package-lock.json
+node_modules/
+.git/
+.gitignore
+README.md
+project/
+*.md

@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "personal-website",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-04-19",
+
+  // Serve the repo root as static assets. Files listed in .assetsignore
+  // (the worker code, wrangler config, etc.) are excluded from the bundle.
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS"
+  },
+
+  // KV namespace "personal-website-visits" — stores per-city visit counters
+  // and the __index key that lists all city records.
+  "kv_namespaces": [
+    { "binding": "VISITS", "id": "a2e2ff13b08145f9826cd73a4e836fcc" }
+  ],
+
+  // 32-byte random salt for hashing visitor IPs. Generated once, never rotated
+  // (rotating would reset the dedup window). Set with: wrangler secret put IP_SALT
+  // Not committed — pulled from Cloudflare at runtime.
+
+  "observability": { "enabled": true }
+}
