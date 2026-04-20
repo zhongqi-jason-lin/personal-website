@@ -1,22 +1,90 @@
-# CODING AGENTS: READ THIS FIRST
+# zhongqilin.org
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+Personal academic website for Zhongqi "Jason" Lin, PhD Candidate in Genetics, Greco Lab, Yale University.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+Live at **[zhongqilin.org](https://zhongqilin.org)**.
 
-## What you should do — IMPORTANT
+## Stack
 
-**Read `personal-website/project/index.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+- **Static HTML / CSS / JS** — no build step, no framework. Single-page academic site rendered by `scripts/v8_gallery.js` against data in `scripts/data.js`.
+- **Cloudflare Workers (with Static Assets)** — serves the repo contents and hosts a tiny fetch handler for visitor + CV-download tracking.
+- **Cloudflare Workers KV** — per-city visit counters with 24h IP-hash dedup.
+- **Cloudflare Registrar + Edge DNS** — `zhongqilin.org` is registered and DNS-managed by Cloudflare.
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+Typography is Apple's SF family via the system font stack (SF Pro Display, SF Pro Text, SF Mono) — no webfonts downloaded.
 
-## About the design files
+## Run locally
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+```bash
+# Static preview (no Worker, no KV, no /api endpoints)
+python3 -m http.server 8000
+open http://localhost:8000
+```
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+```bash
+# Full-stack preview with Worker + simulated KV
+npx wrangler dev
+```
 
-## Bundle contents
+## Deploy
 
-- `personal-website/README.md` — this file
-- `personal-website/project/` — the `Personal Website` project files (HTML prototypes, assets, components)
+Pushing to `main` triggers a Cloudflare Workers Builds deploy automatically — no CI to configure. The git-connected Workers project is wired to this repo.
+
+Manual deploy (useful when you want to bypass the git pipeline):
+
+```bash
+npx wrangler deploy
+```
+
+### One-time infrastructure setup (for forkers)
+
+1. **Create a Workers KV namespace** (`Storage & Databases → KV` in the CF dashboard). Paste the returned id into `wrangler.jsonc` under `kv_namespaces`.
+2. **Generate an IP-hashing salt** — required for the visitor dedup to be unguessable:
+   ```bash
+   openssl rand -hex 32 | npx wrangler secret put IP_SALT
+   ```
+3. **Connect the repo** to Workers Builds (`Workers & Pages → Create → Connect to Git`) so each push auto-deploys.
+4. **Add a custom domain** under `Workers & Pages → <project> → Settings → Domains & Routes`.
+
+## API endpoints
+
+| Route | Purpose |
+|---|---|
+| `GET /api/visits` | Aggregated per-city visitor counts. Used by the map on the home page. 30 s edge cache. |
+| `GET /api/cv-stats` | Total CV downloads + per-country breakdown. |
+
+## Privacy
+
+The visit / CV-download tracking is designed to be as data-minimal as possible:
+
+- **No raw IP addresses are stored.** Visitor dedup uses `SHA-256(ip + IP_SALT)` truncated to 64 bits, TTL'd to 24h. After 24h the hash is unrecoverable — there's no plaintext to correlate.
+- **Only city / country / lat / lon / aggregate count** is persisted per city.
+- **No cookies, no fingerprinting, no third-party calls.**
+- Edge geolocation (`request.cf`) is Cloudflare-native, so visitor data never leaves their network.
+- Bot and Cloudflare-internal traffic is filtered before counting — see `isProbablyBot()` in `worker/index.js`.
+
+## File structure
+
+```
+.
+├── index.html              # Entry point — loads scripts in order
+├── assets/
+│   ├── headshot.jpg
+│   └── Zhongqi-Jason-Lin-CV.pdf
+├── scripts/
+│   ├── data.js             # Bio, publications, education, skills
+│   ├── teaser.js           # SVG teasers for each paper
+│   ├── vmap.js             # World map + /api/visits client
+│   └── v8_gallery.js       # Main renderer (CSS + DOM composition)
+├── worker/
+│   └── index.js            # Cloudflare Worker: static + /api/*
+├── wrangler.jsonc          # Worker configuration
+├── .assetsignore           # Files excluded from the static-asset bundle
+└── LICENSE
+```
+
+## License
+
+[MIT](LICENSE) — the site infrastructure (HTML, CSS, JS, Worker code) is free to adapt.
+
+The personal content (bio, publications, headshot, CV) is **© Zhongqi Lin** and not covered by the MIT license; please fork the scaffolding and replace the data before reusing.
