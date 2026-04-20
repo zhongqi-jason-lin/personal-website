@@ -35,9 +35,13 @@ function isProbablyBot(request) {
   if (/bot|crawl|spider|slurp|monitor|probe|health|uptime|pingdom|datadog|newrelic|uptimerobot|curl|wget|python-requests|go-http|axios|node-fetch|headlesschrome|phantomjs|puppeteer|playwright|preview|fetch-as/.test(ua)) return true;
   const cf = request.cf;
   if (cf?.botManagement?.verifiedBot) return true;
-  // Cloudflare's own edge POPs occasionally warm/probe new Workers from inside
-  // their own ASN, and `asOrganization` comes back as "Cloudflare, Inc." on those.
-  if (cf?.asOrganization && /cloudflare/i.test(cf.asOrganization)) return true;
+  // When the request egresses Cloudflare's own ASN, it could be either:
+  //   (a) a CF internal edge-warmup probe — generic UA, no real device fingerprint
+  //   (b) an iCloud Private Relay user — standard Safari/Chrome UA with iPhone/iPad/Macintosh
+  // Admit (b), drop (a) by requiring a recognizable device-OS string in the UA.
+  if (cf?.asOrganization && /cloudflare/i.test(cf.asOrganization)) {
+    if (!/iphone|ipad|macintosh|android|windows|linux|cros/.test(ua)) return true;
+  }
   return false;
 }
 
@@ -162,8 +166,8 @@ export default {
 
     // CV-download beacon. Fired by navigator.sendBeacon() from the CV link
     // click handler. This is the only reliable CV-tracking path — direct GETs
-    // for the CV PDF are served by the Workers Static Assets handler BEFORE
-    // the Worker runs, so we never see them.
+    // for /assets/<cv>.pdf are served by the Workers Static Assets handler
+    // BEFORE the Worker runs, so we never see them.
     if (url.pathname === '/api/cv-download' && request.method === 'POST') {
       ctx.waitUntil(logCvDownload(env, request).catch(() => {}));
       return new Response(null, { status: 204 });

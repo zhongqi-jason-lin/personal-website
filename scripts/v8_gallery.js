@@ -13,7 +13,7 @@
   /* Shared focus ring */
   .vF a:focus-visible,.vF button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px;opacity:1}
   .vF .stage{display:grid;grid-template-columns:minmax(360px,40%) 1fr;min-height:100vh;min-height:100dvh}
-  /* Mobile: stage becomes flex column so the collection footer can be pushed to
+  /* Mobile: switch stage to flex column so the .collection footer can be pushed to
      the viewport bottom via margin-top:auto when content is shorter than 100dvh. */
   @media(max-width:900px){
     .vF .stage{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
@@ -22,15 +22,17 @@
 
   /* Left plate — scaled up */
   .vF .plate{background:var(--paper-2);border-right:1px solid var(--rule);padding:2.5rem 2.25rem 3rem;display:flex;flex-direction:column;gap:2rem}
-  /* No stage border-bottom — the .collection footer row draws the page-end rule. */
+  /* No stage border-bottom — the .collection footer row below draws the page-bottom rule. */
   .vF .plate .id{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
-  .vF .plate .who{display:grid;grid-template-columns:auto 1fr;gap:1.5rem;align-items:center}
+  .vF .plate .who{display:grid;grid-template-columns:auto 1fr;gap:1.15rem;align-items:center}
   .vF .plate .who-text{display:flex;flex-direction:column;justify-content:center;gap:.45rem}
-  /* Pic: fluid square that scales with viewport via clamp — no dynamic height
-     coupling, no axis-asymmetric clamps, so it can never go oval and transitions
-     smoothly as the viewport resizes. */
-  .vF .plate .pic{width:clamp(104px,11vw,168px);aspect-ratio:1/1;height:auto;border-radius:50%;background:url('${(J&&J.headshot)||"assets/headshot.jpg"}') center/cover,var(--paper);box-shadow:0 14px 30px -16px rgba(0,0,0,.3),0 0 0 5px var(--paper),0 0 0 6px var(--ink);align-self:center}
-  .vF .plate h1{font-family:var(--serif);font-weight:600;font-size:clamp(34px,3.6vw,48px);line-height:1.02;letter-spacing:-.035em;margin:0 0 .4rem;text-wrap:balance}
+  /* Pic: fluid square that scales with viewport width via clamp — no dynamic
+     height coupling, no axis-asymmetric clamps, so it can never go oval and
+     it transitions smoothly as you resize. Max trimmed from 168→152 and the
+     vw slope from 11→10 to hand ~15–25px back to the h1 column, which was
+     causing the name to wrap at common MacBook widths. */
+  .vF .plate .pic{width:clamp(104px,10vw,152px);aspect-ratio:1/1;height:auto;border-radius:50%;background:url('${(J&&J.headshot)||"assets/headshot.jpg"}') center/cover,var(--paper);box-shadow:0 14px 30px -16px rgba(0,0,0,.3),0 0 0 5px var(--paper),0 0 0 6px var(--ink);align-self:center}
+  .vF .plate h1{font-family:var(--serif);font-weight:600;font-size:clamp(29px,2.7vw,41px);line-height:1.04;letter-spacing:-.03em;margin:0 0 .4rem;text-wrap:balance}
   .vF .plate h1 em{font-style:normal;color:var(--accent);font-weight:400}
   .vF .plate .role{font-family:var(--mono);font-size:14.5px;letter-spacing:.06em;color:var(--ink-soft);line-height:1.5}
   .vF .plate .role b{color:var(--ink);font-weight:500}
@@ -39,7 +41,7 @@
   .vF .plate .subject .triad{font-family:var(--serif);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.4rem .7rem;line-height:1.15}
   .vF .plate .subject .triad .r{font-size:clamp(17px,1.9vw,22px);font-weight:500;letter-spacing:-.015em;color:var(--ink);white-space:nowrap}
   .vF .plate .subject .triad .r em{font-style:normal;color:var(--accent);font-weight:600}
-  .vF .plate .subject .triad .op{font-family:var(--serif);font-style:normal;font-weight:400;font-size:clamp(22px,2.4vw,28px);color:var(--accent);opacity:.85;line-height:1}
+  .vF .plate .subject .triad .op{font-family:var(--serif);font-style:normal;font-weight:300;font-size:clamp(16px,1.7vw,20px);color:var(--accent);opacity:.85;line-height:1}
 
   /* Social links row — left-aligned with the role text, pinned to bottom of column */
   .vF .plate .social{display:flex;gap:.3rem;align-items:center;justify-content:flex-start;margin-top:auto;padding-top:.5rem}
@@ -51,13 +53,15 @@
   .vF .plate .bio{font-family:var(--serif);font-size:19px;line-height:1.6;color:var(--ink);border-left:3px solid var(--accent);padding:.3rem 0 .3rem 1.1rem;font-weight:400;letter-spacing:-.005em;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
   .vF .plate .bio b{color:var(--accent);font-weight:600;font-style:normal}
 
-  /* Plate block heading — mirrors the Selected Works section-head spacing:
-     1.9rem below label, then a 1px rule line (carried by .rows / .skills),
-     then 2.25rem padding before content. */
-  .vF .plate .block h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 1.9rem;font-weight:500;display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
+  /* Plate block heading — mirrors Selected Works spacing: 1.9rem below label
+     (15% tighter than the old 2.25rem), then a 1px rule line, then 2.25rem of
+     padding before content. */
+  .vF .plate .block h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 1.6rem;font-weight:500;display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
   .vF .plate .block h3 .cv-link{color:var(--ink-soft);font:inherit;letter-spacing:inherit;text-transform:inherit;border-bottom:1px solid transparent;padding-bottom:2px;transition:color .15s,border-color .15s}
   .vF .plate .block h3 .cv-link:hover{color:var(--accent);border-bottom-color:var(--accent);opacity:1}
-  /* Section-rule line above .rows with 2.25rem padding before the first row. */
+  /* Section-rule line above .rows, with 2.25rem of padding before the first row —
+     matches the Selected Works → exhibit line spacing. Negative horizontal margin
+     makes the rule span the full plate width (to the plate's padding edge). */
   .vF .plate .rows{display:grid;gap:.15rem;border-top:1px solid var(--rule);margin:0 -2.25rem;padding:2.25rem 2.25rem 0}
   .vF .plate .row{display:grid;grid-template-columns:120px 1fr;gap:.9rem;padding:.65rem 0;border-top:1px dashed var(--rule);align-items:baseline}
   .vF .plate .row:first-child{border-top:0}
@@ -70,8 +74,8 @@
   .vF .collection{grid-column:1 / -1;border-top:1px solid var(--rule);padding:1.5rem 2.25rem;font-family:var(--mono);font-size:12px;color:var(--ink-soft);letter-spacing:.06em;text-align:left;background:var(--paper)}
 
   /* Visitors section: wrap the map in a .vsection that carries the section-rule
-     above it, with 2.25rem padding above the map — mirrors the label→line→
-     content rhythm used by Selected Works. */
+     above it, with 2.25rem padding above the map — mirrors the label→line→content
+     rhythm used by Selected Works. */
   .vF .vsection{border-top:1px solid var(--rule);padding-top:2.25rem}
 
   /* Toolkit in left plate */
@@ -86,27 +90,60 @@
   .vF .hall .intro{max-width:58ch;margin:0 0 2.5rem;font-family:var(--serif);font-size:21px;line-height:1.55;color:var(--ink);font-weight:400;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
   .vF .hall .intro b{color:var(--accent);font-weight:600;font-style:normal}
 
-  .vF .section-head{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 1.9rem;font-weight:500}
+  .vF .section-head{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 1.6rem;font-weight:500}
   .vF .section-head span{color:var(--accent)}
 
   .vF .exhibit{margin:0 -2.75rem;padding:2.25rem 2.75rem;border-top:1px solid var(--rule);display:grid;grid-template-columns:72px 1fr;gap:1.5rem;transition:background-color .2s ease}
   /* All section lines uniform: no heavier rule on the first exhibit, no terminal
-     border on the last. The Visitors section-head sits ABOVE the map's own top
-     border — same pattern as Selected Works → first-exhibit-line. */
+     border on the last. The Visitors section-head then sits ABOVE the map's own
+     top border — same pattern as Selected Works → first-exhibit-line. */
+  /* Precomputed accent-soft (already blue at 15% alpha) — no runtime mix, no
+     transition-path color interpolation. */
   .vF .exhibit:hover{background:var(--accent-soft)}
   .vF .exhibit .no{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--ink-faint);padding-top:.1rem}
   .vF .exhibit .no b{display:block;font-size:36px;letter-spacing:-.035em;color:var(--ink);margin-top:.25rem;font-family:var(--serif);font-weight:600;font-variant-numeric:lining-nums}
   /* Give the teaser more breathing room in 2-col so it never feels stamp-sized at the low end. */
   .vF .spec{display:grid;grid-template-columns:minmax(300px,1.25fr) 1fr;gap:1.75rem;align-items:start}
   .vF .spec .tsr{aspect-ratio:4/3;background:var(--paper-2);color:var(--accent);border:1px solid var(--rule);position:relative;overflow:hidden}
+  /* Suppress the body-wide color/fill/stroke transitions inside the teaser —
+     they were letting SVG currentColor animate through unintended hues on
+     initial paint and render artifacts. Theme toggle still crossfades via the
+     View Transitions API (modern browsers) or a hard swap (older ones). */
+  .vF .spec .tsr,.vF .spec .tsr *{transition:none}
   .vF .spec .tsr svg{position:absolute;inset:0;width:100%;height:100%}
-  .vF .spec h3{font-family:var(--serif);font-weight:500;font-size:25.5px;line-height:1.2;letter-spacing:-.025em;margin:0 0 .6rem;text-wrap:balance}
+  /* text-wrap:pretty fills line 1 as long as possible (just avoids orphans),
+     whereas :balance equalized line lengths and left right-margin whitespace
+     — titles here read better when they use the full column width. */
+  .vF .spec h3{font-family:var(--serif);font-weight:500;font-size:25.5px;line-height:1.2;letter-spacing:-.025em;margin:0 0 .6rem;text-wrap:pretty}
   .vF .spec h3 a{color:var(--ink);text-decoration:none;background-image:linear-gradient(var(--accent),var(--accent));background-repeat:no-repeat;background-size:0 1px;background-position:0 100%;transition:background-size .25s ease,color .15s}
   .vF .spec h3 a:hover{color:var(--accent);background-size:100% 1px;opacity:1}
   .vF .spec h3 a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
   .vF .spec .m{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--ink-faint);margin-bottom:.5rem}
   .vF .spec .m b{color:var(--accent);font-weight:500}
+  /* Blurb: hidden by default so the author line sits right under the title; on
+     hover, the card expands to reveal the abstract, pushing authors down. Off-
+     hover collapses back. Uses the grid-template-rows 0fr↔1fr trick so the
+     animation targets the real content height (no max-height magic number).
+     Child gets overflow:hidden so it clips cleanly during the collapse. */
+  .vF .spec .blurb-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.2,.7,.2,1)}
+  .vF .spec .blurb-wrap > p{overflow:hidden;opacity:0;transition:opacity .4s cubic-bezier(.2,.7,.2,1)}
+  .vF .exhibit:hover .spec .blurb-wrap{grid-template-rows:1fr}
+  .vF .exhibit:hover .spec .blurb-wrap > p{opacity:1}
   .vF .spec p{font-family:var(--serif);font-size:16.5px;line-height:1.6;color:var(--ink-soft);margin:0 0 .85rem;max-width:66ch;font-style:normal;font-weight:400;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
+  /* Touch devices and narrow viewports have no reliable hover gesture to
+     reveal the blurb — keep it expanded there so the abstract stays visible.
+     Viewport-width check is belt-and-suspenders alongside hover:none because
+     some emulators (and mis-configured user agents) don't honor hover queries. */
+  @media (hover:none), (max-width:900px){
+    .vF .spec .blurb-wrap{grid-template-rows:1fr}
+    .vF .spec .blurb-wrap > p{opacity:1}
+  }
+  /* Reduced-motion: skip the transition, keep the blurb expanded so content
+     isn't stuck behind a motion gate. */
+  @media (prefers-reduced-motion:reduce){
+    .vF .spec .blurb-wrap{grid-template-rows:1fr;transition:none}
+    .vF .spec .blurb-wrap > p{opacity:1;transition:none}
+  }
   .vF .spec p::before{content:"“";color:var(--accent)}
   .vF .spec p::after{content:"”";color:var(--accent)}
   .vF .spec .au{font-size:13.5px;color:var(--ink-faint);line-height:1.5}
@@ -149,10 +186,20 @@
 
   /* Stack publications (teaser above text) while the hall is narrow.
      3:2 stacked aspect is closer to the 4:3 2-col aspect than 16:9 would be,
-     so the shape hop across the breakpoint is less jarring. */
-  @media(max-width:1100px){
+     so the shape hop across the breakpoint is less jarring.
+     Breakpoint raised from 1100→1360 so side-by-side only kicks in when the
+     right hall is genuinely wide enough for a readable teaser + text column;
+     below that the stacked layout is the more comfortable read. */
+  @media(max-width:1360px){
     .vF .spec{grid-template-columns:1fr;gap:1.25rem}
     .vF .spec .tsr{aspect-ratio:3/2}
+  }
+  /* Tablet/narrow-desktop range: drop blurb justification — with only ~10
+     tokens per line the justify algorithm produces visible rivers. Left-align
+     reads cleaner here. Desktop wide (>1000px) keeps justify where the line
+     has enough words to balance naturally. */
+  @media(max-width:1000px){
+    .vF .spec p{text-align:left}
   }
 
   /* ── Mobile (≤640px) ── tighter padding, smaller portrait, smaller display type,
@@ -174,9 +221,10 @@
     .vF .plate .subject{margin:0 -1.25rem -1rem;padding:1.5rem 1.25rem .5rem}
     .vF .plate .subject .triad{gap:.3rem .55rem}
     .vF .plate .subject .triad .r{font-size:17px}
-    .vF .plate .subject .triad .op{font-size:20px}
+    .vF .plate .subject .triad .op{font-size:15px}
 
-    .vF .plate .bio{font-size:16.5px;line-height:1.55;padding:.15rem 0 .15rem .85rem;border-left-width:2px}
+    /* On narrow screens, justified text creates rivers — fall back to left alignment. */
+    .vF .plate .bio{font-size:16.5px;line-height:1.55;padding:.2rem 0 .2rem .9rem;border-left-width:2px;text-align:left}
 
     .vF .plate .row{grid-template-columns:90px 1fr;gap:.65rem;padding:.55rem 0}
     .vF .plate .row .y{font-size:11px}
@@ -196,7 +244,7 @@
     .vF .spec .tsr{aspect-ratio:3/2}
     .vF .spec h3{font-size:20px;line-height:1.25}
     .vF .spec .m{font-size:11px}
-    .vF .spec p{font-size:15px;line-height:1.55}
+    .vF .spec p{font-size:15px;line-height:1.55;text-align:left;max-width:none}
     .vF .spec .au{font-size:12.5px}
 
     .vF .visitors{margin:1rem -1.25rem 0;padding:.5rem 1.25rem 2rem}
@@ -208,6 +256,19 @@
     .vF .hall .foot{margin:auto -1.25rem 0;padding:1.1rem 1.25rem 0;gap:1.25rem;font-size:10.5px;min-height:auto}
   }
 
+  /* Ultra-small screens (≤380px): shave horizontal padding so nothing feels cramped. */
+  @media(max-width:380px){
+    .vF .plate{padding:1.5rem 1rem 1.75rem;gap:1.25rem}
+    .vF .hall{padding:1.5rem 1rem 2.25rem}
+    .vF .plate .who{gap:.85rem}
+    .vF .plate .subject{margin:0 -1rem -1rem;padding:1.25rem 1rem .5rem}
+    .vF .plate .skills{margin-left:-1rem;margin-right:-1rem;padding-left:1rem;padding-right:1rem}
+    .vF .exhibit{margin:0 -1rem;padding:1.5rem 1rem}
+    .vF .visitors,.vF .hall .foot{margin-left:-1rem;margin-right:-1rem;padding-left:1rem;padding-right:1rem}
+    .vF .plate h1{font-size:clamp(24px,7.2vw,28px)}
+    .vF .plate .row{grid-template-columns:78px 1fr;gap:.55rem}
+  }
+
   /* Keep the floating theme toggle out of iOS home-indicator zone */
   @supports(padding:max(0px)){
     #theme-toggle{right:max(.75rem,env(safe-area-inset-right));bottom:max(.75rem,env(safe-area-inset-bottom))}
@@ -217,6 +278,7 @@
     const title = p.link
       ? `<a href="${p.link}" target="_blank" rel="noopener">${p.title}</a>`
       : p.title;
+    // Stagger exhibits after the intro (560ms baseline + 80ms per index).
     const delay = 560 + i*80;
     return `
     <article class="exhibit" data-rise style="--d:${delay}ms">
@@ -226,7 +288,7 @@
         <div>
           <div class="m"><b>${p.venue}</b> · ${p.year}</div>
           <h3>${title}</h3>
-          <p>${p.blurb}</p>
+          <div class="blurb-wrap"><p>${p.blurb}</p></div>
           <div class="au">${p.authors}</div>
         </div>
       </div>
@@ -237,11 +299,11 @@
   const shown = J.talks.map(t=>`<div class="row"><span class="y">${t.year}</span><span class="w"><b>${t.what}</b><em>${t.note}</em></span></div>`).join('');
   const skills = J.skills.map((s,i)=>`<div class="skill"><span class="n">S.${String(i+1).padStart(2,'0')}</span><span class="t">${s}</span></div>`).join('');
 
-  // Bio highlight: wrap specific phrases in <b> so they pick up the accent color.
-  // Match the strings below to phrases you've used in J.bio (data.js).
+  // Bio highlight for the left block
   const bioHtml = J.bio
-    .replace('two or three concepts','<b>two or three concepts</b>')
-    .replace('accented','<b>accented</b>');
+    .replace('transcription dynamics','<b>transcription dynamics</b>')
+    .replace('cellular behaviors','<b>cellular behaviors</b>')
+    .replace('tissue architecture','<b>tissue architecture</b>');
 
   root.innerHTML=`<style>${css}</style><div class="vF"><div class="stage">
     <div class="plate">
@@ -264,12 +326,12 @@
       </div>
 
       <div class="subject" data-rise style="--d:140ms">
-        <div class="triad" role="figure" aria-label="Research, Teaching, Writing">
-          <span class="r"><em>Research</em></span>
-          <span class="op">·</span>
-          <span class="r"><em>Teaching</em></span>
-          <span class="op">·</span>
-          <span class="r"><em>Writing</em></span>
+        <div class="triad" role="figure" aria-label="Cells, Pixels, Code">
+          <span class="r"><em>Cells</em></span>
+          <span class="op">∩</span>
+          <span class="r"><em>Pixels</em></span>
+          <span class="op">∩</span>
+          <span class="r"><em>Code</em></span>
         </div>
       </div>
 

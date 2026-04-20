@@ -60,8 +60,11 @@
   // Simplified continent outlines (equirectangular coords, viewBox 1000×500).
   // Not geographically precise — stylized silhouettes suitable for a site visitor map.
   const LAND = [
-    // North America
-    "M140,110 L220,100 L270,115 L305,135 L330,170 L315,200 L285,225 L260,250 L235,265 L220,285 L200,290 L185,275 L175,255 L165,235 L155,215 L150,190 L145,165 L148,140 Z",
+    // North America — Alaska + Canada (Arctic, Labrador) + USA + Mexico + Central America
+    // Traced clockwise from Alaska NW: Arctic coast → Labrador → US East →
+    // Florida → Gulf → Mexico → Central America → Mexico Pacific → US West →
+    // BC → Alaska S → close back to NW. Stylized, not geographically precise.
+    "M42,68 L60,55 L100,52 L150,48 L200,45 L250,48 L285,58 L308,75 L330,98 L345,120 L335,130 L318,134 L305,135 L298,158 L285,180 L270,185 L248,182 L235,195 L258,212 L282,228 L268,220 L248,215 L222,198 L198,170 L175,145 L155,125 L135,108 L110,95 L82,88 L58,82 Z",
     // Central America
     "M260,275 L285,290 L305,310 L315,325 L300,330 L280,320 L265,305 L258,290 Z",
     // South America
@@ -74,7 +77,10 @@
     "M500,210 L555,205 L595,220 L620,250 L625,295 L615,335 L595,370 L570,395 L540,400 L515,385 L500,355 L490,320 L488,280 L493,240 Z",
     // Middle East / Arabia
     "M605,220 L640,215 L655,240 L650,265 L625,275 L605,260 L600,235 Z",
-    // Asia main
+    // Russia — stretches from Kaliningrad/Baltic across Siberia to Chukotka.
+    // Previously completely missing: latitudes above ~54°N weren't drawn at all.
+    "M555,95 L588,80 L610,58 L680,50 L800,35 L870,42 L955,55 L995,72 L944,83 L938,106 L867,131 L828,111 L722,106 L639,119 L555,106 Z",
+    // Asia main — southern half of Eurasia (Turkey/Iran/Afghanistan/China/SE Asia)
     "M590,110 L680,100 L760,105 L820,120 L860,140 L875,165 L860,185 L830,200 L790,210 L745,215 L700,210 L665,200 L630,185 L605,165 L593,140 Z",
     // India
     "M705,215 L740,215 L750,240 L745,265 L725,280 L710,265 L702,240 Z",

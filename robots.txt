@@ -1,0 +1,5 @@
+# Edit the Sitemap URL below to your actual deployment domain.
+User-agent: *
+Allow: /
+
+Sitemap: https://your-domain.example/sitemap.xml

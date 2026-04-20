@@ -4,6 +4,9 @@ worker/
 wrangler.jsonc
 wrangler.toml
 .assetsignore
+# Local dev server state — miniflare sqlite caches, tmp compiled worker bundle.
+# Without this entry, `wrangler deploy` uploads them as static assets.
+.wrangler/
 .dev.vars
 .env
 .env.*
@@ -15,3 +18,5 @@ node_modules/
 README.md
 project/
 *.md
+.DS_Store
+**/.DS_Store
