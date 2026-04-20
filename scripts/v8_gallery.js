@@ -203,7 +203,7 @@
       ${specs}
 
       <div class="visitors">
-        <div class="section-head"><span>— Visitors</span><span>All-time</span></div>
+        <div class="section-head"><span>— Visitors</span></div>
         ${VMAP()}
       </div>
 
