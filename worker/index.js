@@ -78,6 +78,15 @@ async function logVisit(env, request) {
   record.lon = lon;
   await env.VISITS.put(key, JSON.stringify(record));
 
+  // Per-day counter for the 30-day trend chart. Each counter key is a full UTC
+  // date (stats:day:YYYY-MM-DD) and TTL's to 60 days so we never accumulate
+  // unbounded history. The dedup above ensures each counter tracks unique
+  // visitors per day, matching the semantics of the city counters.
+  const today = now.slice(0, 10);                          // "YYYY-MM-DD"
+  const dayKey = 'stats:day:' + today;
+  const prior = parseInt((await env.VISITS.get(dayKey)) || '0', 10);
+  await env.VISITS.put(dayKey, String(prior + 1), { expirationTtl: 60 * 24 * 60 * 60 });
+
   if (!existing) {
     const index = (await env.VISITS.get(INDEX_KEY, { type: 'json' })) || [];
     if (!index.includes(key)) {
@@ -86,6 +95,44 @@ async function logVisit(env, request) {
       await env.VISITS.put(INDEX_KEY, JSON.stringify(index));
     }
   }
+}
+
+// ISO date the site went live — drives the "Day N" counter. Set once at
+// launch; the client's /scripts/data.js carries the same value for the
+// mock/preview path and as a display fallback.
+const SITE_LIVE_DATE = '2025-01-01';
+
+// Build the /api/stats payload. Intentionally minimal: days-on-view, 30-day
+// country reach, and a top-3 country ranking — no raw visit counts are
+// returned (the panel renders presence and order, not magnitude).
+async function getStats(env) {
+  const cities = await getVisits(env);
+
+  // Aggregate visits by country across all stored cities. For a site that's
+  // only days old, all-time ≈ past 30 days; if the site ages past 30 days we
+  // can switch to a per-day per-country counter later without changing the
+  // UI shape.
+  const byCountry = new Map();
+  for (const c of cities) {
+    if (!c.country) continue;
+    byCountry.set(c.country, (byCountry.get(c.country) || 0) + (c.count || 0));
+  }
+  const topCountries = [...byCountry.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([cc]) => cc);
+
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  const live = new Date(SITE_LIVE_DATE + 'T00:00:00Z');
+  const daysLive = Math.max(0, Math.floor((today - live) / 86400000));
+
+  return {
+    liveSince: SITE_LIVE_DATE,
+    daysLive,
+    countryCount: byCountry.size,
+    topCountries,
+  };
 }
 
 async function getVisits(env) {
@@ -145,6 +192,20 @@ export default {
           headers: {
             'content-type': 'application/json; charset=utf-8',
             'cache-control': 'public, max-age=30, s-maxage=30',
+            'access-control-allow-origin': '*',
+          },
+        }
+      );
+    }
+
+    if (url.pathname === '/api/stats' && request.method === 'GET') {
+      const stats = await getStats(env);
+      return new Response(
+        JSON.stringify({ ...stats, updated: new Date().toISOString() }),
+        {
+          headers: {
+            'content-type': 'application/json; charset=utf-8',
+            'cache-control': 'public, max-age=60, s-maxage=60',
             'access-control-allow-origin': '*',
           },
         }

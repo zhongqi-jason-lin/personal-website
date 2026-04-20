@@ -323,9 +323,19 @@
     if(mq.addEventListener) mq.addEventListener('change',onMQ);
     else if(mq.addListener) mq.addListener(onMQ);
   })();
-  // Scroll-boundary glow: add a body class the moment the scroll reaches
+  // Scroll-boundary glow: add a body class the moment USER SCROLL reaches
   // the top/bottom so the CSS keyframe fires, then remove it after the
   // pulse finishes so re-entering the edge re-triggers the animation.
+  //
+  // Layout-driven edge arrivals (e.g. the Site-stats panel expanding
+  // grid-template-rows:0fr→1fr, a teaser image finishing load, iOS Safari
+  // hiding the address bar) must NOT pulse — they're not a navigation the
+  // user initiated. We split the handler:
+  //   • scroll event   → pulse on false→true transition, then sync state
+  //   • resize + ResizeObserver → silently sync state, never pulse
+  // The silent sync is essential: without it, a panel that grows the page
+  // while the user was already at the bottom would leave wasBottom stuck at
+  // true, and the next real scroll-to-bottom wouldn't pulse.
   (function(){
     const body=document.body;
     const EDGE=4;     // px tolerance — iOS Safari can report sub-pixel offsets at the edges
@@ -335,14 +345,22 @@
     // doesn't see a false→true transition and fire the pulse on refresh. The
     // glow still fires on subsequent edge re-entries.
     let wasTop=true, wasBottom=true;
-    const update=()=>{
+    const compute=()=>{
       const y=window.scrollY||window.pageYOffset||0;
       const doc=document.documentElement;
       const maxY=Math.max(doc.scrollHeight,doc.offsetHeight,body.scrollHeight||0)-window.innerHeight;
-      const nowTop=y<=EDGE;
-      const nowBottom=maxY>0 && y>=maxY-EDGE;
-      // Edge-enter detection: only fire on false→true transitions so the pulse
-      // plays exactly once per arrival, not on every scroll tick at the edge.
+      return {nowTop:y<=EDGE, nowBottom:maxY>0 && y>=maxY-EDGE};
+    };
+    const syncSilent=()=>{
+      const {nowTop,nowBottom}=compute();
+      wasTop=nowTop;
+      wasBottom=nowBottom;
+    };
+    const onScroll=()=>{
+      const {nowTop,nowBottom}=compute();
+      // Edge-enter detection: only fire on false→true transitions driven by
+      // a real scroll event, so the pulse plays exactly once per user-driven
+      // arrival — not on every scroll tick at the edge, not on layout shifts.
       if(nowTop && !wasTop){
         body.classList.add('at-top');
         clearTimeout(topTimer);
@@ -356,9 +374,15 @@
       wasTop=nowTop;
       wasBottom=nowBottom;
     };
-    update();
-    window.addEventListener('scroll',update,{passive:true});
-    window.addEventListener('resize',update);
+    syncSilent();
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',syncSilent);
+    // Catch layout changes that don't produce scroll/resize events — chiefly
+    // the stats-panel grid-template-rows transition. Observing documentElement
+    // fires on any document-size change (content reflow, image load, etc.).
+    if('ResizeObserver' in window){
+      new ResizeObserver(syncSilent).observe(document.documentElement);
+    }
   })();
 </script>
 </body>

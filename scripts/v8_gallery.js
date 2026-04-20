@@ -78,6 +78,59 @@
      rhythm used by Selected Works. */
   .vF .vsection{border-top:1px solid var(--rule);padding-top:2.25rem}
 
+  /* Map frame wraps the VMAP output so we can overlay a "tap for stats"
+     hint in the corner. Relative positioning is inherited from .vmap
+     already; the hint is absolutely positioned against this wrapper. */
+  .vF .vmap-frame{position:relative;cursor:pointer}
+  .vF .vmap-hint{position:absolute;right:.75rem;bottom:.75rem;z-index:5;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;
+    color:var(--ink-soft);text-transform:lowercase;
+    background:color-mix(in srgb,var(--paper) 88%,transparent);
+    padding:.3rem .55rem;border:1px solid var(--rule);border-radius:2px;
+    pointer-events:none;opacity:.85;transition:opacity .4s}
+  .vF .vmap-frame[data-has-opened="true"] .vmap-hint{opacity:0}
+
+  /* Stats panel — click-to-reveal via grid-template-rows 0fr↔1fr so the
+     section expands to its natural height without a magic max-height.
+     Inner content has overflow:hidden so it clips cleanly during collapse. */
+  .vF .vstats-wrap{display:grid;grid-template-rows:0fr;opacity:0;
+    transition:grid-template-rows .55s cubic-bezier(.2,.7,.2,1),
+               opacity .45s cubic-bezier(.2,.7,.2,1),
+               margin-top .4s cubic-bezier(.2,.7,.2,1);
+    margin-top:0}
+  .vF .vstats-wrap > .vstats{overflow:hidden;min-height:0}
+  .vF .vstats-wrap[data-stats-open="true"]{grid-template-rows:1fr;opacity:1;margin-top:1.75rem}
+
+  /* Three-column museum-label layout. Tighter than before — numbers
+     smaller, padding reduced, vertical rhythm compressed so the panel
+     feels like a caption card rather than a dashboard. */
+  .vF .vstats{padding-top:1.5rem;border-top:1px solid var(--rule);display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+  .vF .vstats .block{padding:.15rem 1.5rem .15rem 0;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:.4rem;min-height:96px}
+  .vF .vstats .block + .block{padding-left:1.5rem}
+  .vF .vstats .block:last-child{border-right:0;padding-right:0}
+  .vF .vstats .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+  /* Big number + inline unit, smaller than before (24–32px) to match the
+     caption-card density. Baseline alignment keeps "8 days" as one beat. */
+  .vF .vstats .big{font-family:var(--serif);font-weight:600;font-size:clamp(24px,2.4vw,32px);line-height:1;letter-spacing:-.028em;color:var(--ink);font-variant-numeric:tabular-nums lining-nums;display:flex;align-items:baseline;flex-wrap:wrap;gap:.35rem .5rem}
+  .vF .vstats .big .unit{font-family:var(--mono);font-weight:400;font-size:.38em;letter-spacing:.02em;color:var(--ink-soft);text-transform:lowercase}
+  .vF .vstats .since{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--ink-faint);margin-top:auto}
+  /* Ranking — tighter, roman numerals slightly smaller, country names in
+     small caps at a refined size. Opacity ladder still reinforces rank. */
+  .vF .vstats .rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.3rem}
+  .vF .vstats .rank li{display:grid;grid-template-columns:28px 1fr;align-items:baseline;gap:.55rem}
+  .vF .vstats .rank .roman{font-family:var(--serif);font-weight:400;font-size:15px;letter-spacing:.04em;color:var(--accent)}
+  .vF .vstats .rank .country{font-family:var(--serif);font-weight:500;font-size:clamp(13px,1.25vw,16px);line-height:1.15;letter-spacing:.02em;color:var(--ink);text-transform:uppercase;font-variant:small-caps}
+  .vF .vstats .rank li:nth-child(2) .country{opacity:.82}
+  .vF .vstats .rank li:nth-child(3) .country{opacity:.65}
+  @media(max-width:900px){
+    .vF .vstats{grid-template-columns:1fr;gap:1.25rem;padding-top:1.25rem}
+    .vF .vstats .block{padding:0;border-right:0;border-bottom:1px solid var(--rule);padding-bottom:1rem;min-height:0}
+    .vF .vstats .block:last-child{border-bottom:0;padding-bottom:0}
+    .vF .vstats .block + .block{padding-left:0}
+    .vF .vstats .big{font-size:28px}
+    .vF .vmap-hint{font-size:10px;right:.5rem;bottom:.5rem;padding:.25rem .45rem}
+  }
+
   /* Toolkit in left plate */
   .vF .plate .skills{margin:0 -2.25rem;padding:2.25rem 2.25rem 0;display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid var(--rule)}
   .vF .plate .skill{padding:.95rem .75rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:.4rem;min-height:68px}
@@ -301,6 +354,7 @@
 
   // Bio highlight for the left block
   const bioHtml = J.bio
+    .replace('stem cell','<b>stem cell</b>')
     .replace('transcription dynamics','<b>transcription dynamics</b>')
     .replace('cellular behaviors','<b>cellular behaviors</b>')
     .replace('tissue architecture','<b>tissue architecture</b>');
@@ -359,8 +413,34 @@
       ${specs}
 
       <div class="visitors">
-        <div class="section-head" data-rise style="--d:900ms"><span>Visitors</span></div>
-        <div class="vsection">${VMAP()}</div>
+        <div class="section-head" data-rise style="--d:900ms"><span>Site stats</span></div>
+        <div class="vsection">
+          <div class="vmap-frame">
+            ${VMAP()}
+            <div class="vmap-hint" data-hint>tap the map for stats</div>
+          </div>
+          <div class="vstats-wrap" data-stats-open="false" aria-hidden="true">
+            <div class="vstats" data-rise style="--d:980ms">
+              <div class="block">
+                <div class="lbl">On view</div>
+                <div class="big"><span data-stat="day-n">—</span><span class="unit">days</span></div>
+                <div class="since" data-stat="since-date">—</div>
+              </div>
+              <div class="block">
+                <div class="lbl">30-day reach</div>
+                <div class="big"><span data-stat="countries">—</span><span class="unit">countries</span></div>
+              </div>
+              <div class="block">
+                <div class="lbl">Mostly seen in</div>
+                <ol class="rank">
+                  <li><span class="roman">I</span><span class="country" data-stat="rank1">—</span></li>
+                  <li><span class="roman">II</span><span class="country" data-stat="rank2">—</span></li>
+                  <li><span class="roman">III</span><span class="country" data-stat="rank3">—</span></li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -380,6 +460,216 @@
   if (cvLink && 'sendBeacon' in navigator) {
     cvLink.addEventListener('click', () => {
       try { navigator.sendBeacon('/api/cv-download'); } catch (_) {}
+    });
+  }
+
+  // ── Stats panel renderer ────────────────────────────────────────────────────
+  // Museum-label treatment: days on view, 30-day country reach, top-3 country
+  // ranking in Roman numerals. No visit counts — the meaning is in presence
+  // and rank, not magnitude. Data from GET /api/stats; for local preview,
+  // ?mock=stats synthesizes a realistic response.
+  const set = (key, val) => {
+    const el = root.querySelector(`[data-stat="${key}"]`);
+    if (el) el.textContent = val;
+  };
+  const pad3 = (n) => String(n).padStart(3, '0');
+  const regionNames = (() => {
+    try { return new Intl.DisplayNames(['en'], { type: 'region' }); } catch (_) { return null; }
+  })();
+  const countryName = (cc) => {
+    if (!cc) return '—';
+    if (regionNames) {
+      try { return regionNames.of(cc) || cc; } catch (_) {}
+    }
+    return cc;
+  };
+  const prettyDate = (iso) => {
+    if (!iso) return '—';
+    const d = new Date(iso + 'T00:00:00Z');
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  };
+  const pickStats = async () => {
+    if (window.__STATS_MOCK) return window.__STATS_MOCK;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('mock') === 'stats') return mockStats();
+      const r = await fetch('/api/stats', { headers: { accept: 'application/json' } });
+      if (!r.ok) return null;
+      return await r.json();
+    } catch (_) { return null; }
+  };
+  const renderStats = (s) => {
+    if (!s) return;
+    set('day-n', String(s.daysLive ?? 0));
+    set('since-date', s.liveSince ? `live since ${prettyDate(s.liveSince)}` : '—');
+    set('countries', String(s.countryCount ?? 0));
+    const top = s.topCountries || [];
+    set('rank1', countryName(top[0]) || '—');
+    set('rank2', countryName(top[1]) || '—');
+    set('rank3', countryName(top[2]) || '—');
+  };
+  const mockStats = () => {
+    const liveSince = (window.JASON && window.JASON.liveSince) || '2026-04-12';
+    const today = new Date(); today.setUTCHours(0, 0, 0, 0);
+    const d0 = new Date(liveSince + 'T00:00:00Z');
+    const daysLive = Math.max(0, Math.floor((today - d0) / 86400000));
+    return {
+      liveSince,
+      daysLive,
+      countryCount: 27,
+      topCountries: ['US', 'GB', 'SG'],
+    };
+  };
+  requestAnimationFrame(async () => { renderStats(await pickStats()); });
+
+  // ── Map click-to-reveal stats ───────────────────────────────────────────────
+  // The map itself is the affordance. First click opens the stats panel and
+  // dismisses the corner hint; subsequent clicks toggle the panel.
+  const mapFrame = root.querySelector('.vmap-frame');
+  const statsWrap = root.querySelector('.vstats-wrap');
+  if (mapFrame && statsWrap) {
+    mapFrame.addEventListener('click', () => {
+      const open = statsWrap.dataset.statsOpen === 'true';
+      statsWrap.dataset.statsOpen = open ? 'false' : 'true';
+      statsWrap.setAttribute('aria-hidden', open ? 'true' : 'false');
+      mapFrame.dataset.hasOpened = 'true';
+    });
+  }
+
+  // ── Hover-triggered teaser draw-in ─────────────────────────────────────────
+  // Teasers render fully visible on load. Hovering any exhibit replays a
+  // "curator painting" animation on the diagram itself. The caption strip
+  // (bottom line + text labels) stays visible throughout — labels appear
+  // "first", the diagram draws in above them. Diagram strokes animate via
+  // stroke-dashoffset; filled dots/centers fade in once most strokes have
+  // started drawing. Each exhibit debounces during its own animation so
+  // quick re-hovers don't stutter. Respects prefers-reduced-motion.
+  const prefersReduced = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  // Scope selectors to the diagram wrapper (<g fill="none" ...>), so the
+  // caption-strip <line> and <text> labels — which are top-level children of
+  // the <svg> — are never touched. They stay fully visible the whole time.
+  const strokeSelector = [
+    'g[fill="none"] path',
+    'g[fill="none"] line',
+    'g[fill="none"] polyline',
+    'g[fill="none"] polygon',
+    'g[fill="none"] ellipse',
+    'g[fill="none"] circle:not([fill="currentColor"])',
+  ].join(',');
+  const fillSelector = 'g[fill="none"] circle[fill="currentColor"]';
+  const DUR = 1180;        // ms per element — painterly pace, ~1.75s total
+  const STAGGER = 30;      // ms between element starts — heavy overlap = cohesion
+  const EASE = 'cubic-bezier(.65,0,.35,1)';  // smooth S-curve, reads as a single drawn gesture
+
+  // True when the element carries its own dash pattern (e.g. IL-7 wave's "2 2.5").
+  // The stroke-dashoffset reveal overwrites dasharray with a single pathLength-long
+  // dash, which renders as SOLID — then the restore at animation end visibly
+  // "snaps" to dashed. For those elements we fade opacity instead, so the dashes
+  // are native the whole way through.
+  const isNativelyDashed = (el) => {
+    const d = el.getAttribute('stroke-dasharray');
+    return d !== null && d.trim() !== '' && d !== 'none' && d !== '0';
+  };
+
+  const replayDraw = (host) => {
+    const svg = host.querySelector('svg');
+    if (!svg) return;
+    const strokables = svg.querySelectorAll(strokeSelector);
+    const fillables = svg.querySelectorAll(fillSelector);
+
+    // Phase A (synchronous, same frame): snap every animated element to its
+    // hidden state with transitions suppressed.
+    //  • Plain strokes  → stroke-dashoffset = pathLength (fully offset, invisible)
+    //  • Dashed strokes → opacity 0 (dasharray stays untouched, no snap later)
+    //  • Filled dots    → opacity 0
+    strokables.forEach((el) => {
+      el.style.transition = 'none';
+      if (isNativelyDashed(el)) {
+        // Cache the element's natural opacity once (IL-7 arcs use 0.8/0.6/0.4
+        // to fake depth). All later hovers fade BACK to this cached value so
+        // the depth cue survives repeated replays.
+        if (!('origOpacity' in el.dataset)) {
+          el.dataset.origOpacity = getComputedStyle(el).opacity;
+        }
+        el.style.opacity = '0';
+        return;
+      }
+      try {
+        const len = typeof el.getTotalLength === 'function' ? el.getTotalLength() : 0;
+        if (!(len > 0)) return;
+        el.style.strokeDasharray = String(len);
+        el.style.strokeDashoffset = String(len);
+      } catch (_) { /* detached / zero-length */ }
+    });
+    fillables.forEach((el) => {
+      el.style.transition = 'none';
+      el.style.opacity = '0';
+    });
+
+    // Force a reflow so the hidden snapshot lands in a committed frame before
+    // the animation starts. Without this, browsers coalesce both style writes
+    // and the draw-from-hidden effect is lost.
+    // eslint-disable-next-line no-unused-expressions
+    svg.getBoundingClientRect();
+
+    // Phase B (next frame): animate to drawn state. Dashed elements share the
+    // same stagger slot as their plain neighbors, so they emerge in rhythm
+    // rather than popping.
+    requestAnimationFrame(() => {
+      strokables.forEach((el, i) => {
+        const delay = i * STAGGER;
+        if (isNativelyDashed(el)) {
+          const target = el.dataset.origOpacity ?? '1';
+          el.style.transition = `opacity ${DUR}ms ${EASE} ${delay}ms`;
+          el.style.opacity = target;
+          setTimeout(() => {
+            // Revert to the element's authored opacity by dropping the inline
+            // override, so future style reads see the SVG attribute again.
+            el.style.removeProperty('opacity');
+            el.style.transition = '';
+          }, DUR + delay + 40);
+          return;
+        }
+        if (!el.style.strokeDashoffset) return;
+        el.style.transition = `stroke-dashoffset ${DUR}ms ${EASE} ${delay}ms`;
+        el.style.strokeDashoffset = '0';
+        setTimeout(() => {
+          // Clear the overrides so the element reverts to its authored state.
+          // Plain strokes had no dasharray to begin with, so removing the
+          // inline override is sufficient — nothing to "restore", no snap.
+          el.style.removeProperty('stroke-dasharray');
+          el.style.removeProperty('stroke-dashoffset');
+          el.style.transition = '';
+        }, DUR + delay + 40);
+      });
+      // Fills begin at ~70% of a single DUR — the first strokes are already
+      // visible by then, so dots appear to "settle into" the traced shape
+      // rather than leading it.
+      const FILL_START = 820;
+      const FILL_STAGGER = 30;
+      fillables.forEach((el, i) => {
+        el.style.transition = `opacity .5s ${EASE} ${FILL_START + i * FILL_STAGGER}ms`;
+        el.style.opacity = '1';
+      });
+    });
+  };
+
+  if (!prefersReduced) {
+    root.querySelectorAll('.exhibit').forEach((exhibit) => {
+      const tsr = exhibit.querySelector('.tsr');
+      if (!tsr) return;
+      let playing = false;
+      // Rough total animation length = DUR + (elementCount-1)*STAGGER + slack.
+      // With DUR=1180 and STAGGER=30, 20 elements finish at ~1750ms; fills at
+      // ~1740ms. 1900ms debounces re-hovers with a small safety margin.
+      const animationLen = 1900;
+      exhibit.addEventListener('mouseenter', () => {
+        if (playing) return;
+        playing = true;
+        replayDraw(tsr);
+        setTimeout(() => { playing = false; }, animationLen);
+      });
     });
   }
 })();

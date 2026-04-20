@@ -13,6 +13,10 @@ window.JASON = {
   lab: 'Example Lab',
   advisor: 'Prof. Advisor Name',
   institution: 'Example University',
+  // ISO date (YYYY-MM-DD) the site went live — drives the "Day N" counter in
+  // the Site Stats panel. The Worker falls back to SITE_LIVE_DATE in
+  // worker/index.js if this is empty or missing.
+  liveSince: '2025-01-01',
   links: {
     email: 'mailto:jane.example@your-institution.edu',
     github: 'https://github.com/your-github-handle',
