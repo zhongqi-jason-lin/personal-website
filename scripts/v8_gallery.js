@@ -43,10 +43,10 @@
   .vF .plate .subject .triad .r em{font-style:normal;color:var(--accent);font-weight:600}
   .vF .plate .subject .triad .op{font-family:var(--serif);font-style:normal;font-weight:300;font-size:clamp(16px,1.7vw,20px);color:var(--accent);opacity:.85;line-height:1}
 
-  /* Social links row — now a sibling of .who (not inside .who-text), so it
-     lives in its own row below the headshot + name block. Left-aligned on
-     desktop to hug the left rail, centered on mobile (see @media rule). */
-  .vF .plate .social{display:flex;gap:.3rem;align-items:center;justify-content:flex-start;padding-top:.75rem}
+  /* Social links row — sibling of .who. Centered horizontally on all
+     breakpoints so the five icons sit on the plate's centerline and read
+     as a deliberate row rather than a leftover left-rail detail. */
+  .vF .plate .social{display:flex;gap:.3rem;align-items:center;justify-content:center;padding-top:.75rem}
   .vF .plate .social a{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--rule);border-radius:50%;color:var(--ink-soft);background:var(--paper);transition:all .15s}
   .vF .plate .social a:hover{color:var(--paper);background:var(--ink);border-color:var(--ink);opacity:1}
   .vF .plate .social a svg{width:14px;height:14px;fill:currentColor}
@@ -281,10 +281,9 @@
     .vF .plate h1{font-size:clamp(26px,7vw,32px);line-height:1.1;letter-spacing:-.02em;margin:0 0 .25rem}
     .vF .plate .role{font-size:13px;line-height:1.45}
 
-    /* Social icons: centered horizontally, full-width row below role so
-       the five circles sit on the plate's centerline rather than hanging
-       off the left edge of the text column. */
-    .vF .plate .social{gap:.35rem;padding-top:.75rem;justify-content:center}
+    /* Mobile bumps icon spacing slightly. Centering is inherited from the
+       base rule (justify-content:center applies everywhere). */
+    .vF .plate .social{gap:.35rem;padding-top:.75rem}
     .vF .plate .social a{width:40px;height:40px}
     .vF .plate .social a svg{width:15px;height:15px}
 
