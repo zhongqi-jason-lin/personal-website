@@ -2,7 +2,9 @@
 
 A zero-build static template for a personal academic website, wired for privacy-respecting visitor + CV-download tracking on Cloudflare Workers.
 
-One live example deployed from this template: [zhongqilin.org](https://zhongqilin.org).
+![Preview of the template deployed at zhongqilin.org](assets/preview.png)
+
+One live example deployed from this template: **[zhongqilin.org](https://zhongqilin.org)**.
 
 ## What you get
 
