@@ -15,3 +15,6 @@ Jason Lin _standalone_.html
 # Cloudflare local state
 .wrangler/
 .dev.vars
+
+.dev.vars*
+!.dev.vars.example
