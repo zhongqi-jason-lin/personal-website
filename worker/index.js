@@ -25,7 +25,22 @@ function cityKeyFor(country, city) {
   return 'city:' + country + ':' + city.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 }
 
+// Filter out non-human traffic so bot/edge-warmup pings don't inflate city counts.
+// Keeping this conservative: if any signal screams "not a browser tab," skip the log.
+function isProbablyBot(request) {
+  const ua = (request.headers.get('user-agent') || '').toLowerCase();
+  if (!ua || !ua.includes('mozilla')) return true;
+  if (/bot|crawl|spider|slurp|monitor|probe|health|uptime|pingdom|datadog|newrelic|uptimerobot|curl|wget|python-requests|go-http|axios|node-fetch|headlesschrome|phantomjs|puppeteer|playwright|preview|fetch-as/.test(ua)) return true;
+  const cf = request.cf;
+  if (cf?.botManagement?.verifiedBot) return true;
+  // Cloudflare's own edge POPs occasionally warm/probe new Workers from inside
+  // their own ASN, and `asOrganization` comes back as "Cloudflare, Inc." on those.
+  if (cf?.asOrganization && /cloudflare/i.test(cf.asOrganization)) return true;
+  return false;
+}
+
 async function logVisit(env, request) {
+  if (isProbablyBot(request)) return;
   const cf = request.cf;
   if (!cf) return;
   const lat = cf.latitude != null ? parseFloat(cf.latitude) : null;
