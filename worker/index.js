@@ -11,6 +11,9 @@
 const DEDUP_TTL_SECONDS = 24 * 60 * 60;       // count one visit per IP per 24h
 const MAX_CITIES = 500;                        // safety cap on the index
 const INDEX_KEY = '__index';
+const CV_PATH = '/assets/Zhongqi-Jason-Lin-CV.pdf';
+const CV_TOTAL_KEY = 'cv:total';
+const CV_COUNTRIES_KEY = 'cv:countries';
 
 async function ipHash(ip, salt) {
   const data = new TextEncoder().encode(ip + '|' + salt);
@@ -90,6 +93,43 @@ async function getVisits(env) {
   return records.filter(Boolean);
 }
 
+// CV-download counter. Same IP-hash dedup as visits (one count per IP per 24h),
+// plus a per-country tally so you can see rough geographic reach.
+async function logCvDownload(env, request) {
+  if (isProbablyBot(request)) return;
+  const cf = request.cf;
+  const ip = request.headers.get('cf-connecting-ip') || '';
+  if (!ip) return;
+  const salt = env.IP_SALT || 'default-salt-please-rotate';
+  const seenKey = 'cv-seen:' + (await ipHash(ip, salt));
+  if (await env.VISITS.get(seenKey)) return;
+  await env.VISITS.put(seenKey, '1', { expirationTtl: DEDUP_TTL_SECONDS });
+
+  const total = parseInt((await env.VISITS.get(CV_TOTAL_KEY)) || '0', 10) + 1;
+  await env.VISITS.put(CV_TOTAL_KEY, String(total));
+
+  const country = (cf?.country || 'XX').trim();
+  const byCountryKey = 'cv:country:' + country;
+  const countryCount = parseInt((await env.VISITS.get(byCountryKey)) || '0', 10) + 1;
+  await env.VISITS.put(byCountryKey, String(countryCount));
+
+  const countries = (await env.VISITS.get(CV_COUNTRIES_KEY, { type: 'json' })) || [];
+  if (!countries.includes(country)) {
+    countries.push(country);
+    await env.VISITS.put(CV_COUNTRIES_KEY, JSON.stringify(countries));
+  }
+}
+
+async function getCvStats(env) {
+  const total = parseInt((await env.VISITS.get(CV_TOTAL_KEY)) || '0', 10);
+  const countries = (await env.VISITS.get(CV_COUNTRIES_KEY, { type: 'json' })) || [];
+  const byCountryEntries = await Promise.all(
+    countries.map(async (c) => [c, parseInt((await env.VISITS.get('cv:country:' + c)) || '0', 10)])
+  );
+  const byCountry = Object.fromEntries(byCountryEntries.sort((a, b) => b[1] - a[1]));
+  return { total, countries: countries.length, byCountry };
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -108,11 +148,30 @@ export default {
       );
     }
 
+    if (url.pathname === '/api/cv-stats' && request.method === 'GET') {
+      const stats = await getCvStats(env);
+      return new Response(
+        JSON.stringify({ ...stats, updated: new Date().toISOString() }),
+        {
+          headers: {
+            'content-type': 'application/json; charset=utf-8',
+            'cache-control': 'public, max-age=30, s-maxage=30',
+          },
+        }
+      );
+    }
+
     // Log the visit in the background — only for HTML page loads so we don't
     // count every favicon/script/asset request.
     const accepts = request.headers.get('accept') || '';
     if (request.method === 'GET' && accepts.includes('text/html')) {
       ctx.waitUntil(logVisit(env, request).catch(() => {}));
+    }
+
+    // Log CV downloads separately — the browser requests the PDF with
+    // Accept: application/pdf, not text/html, so it's a distinct code path.
+    if (request.method === 'GET' && url.pathname === CV_PATH) {
+      ctx.waitUntil(logCvDownload(env, request).catch(() => {}));
     }
 
     return env.ASSETS.fetch(request);
