@@ -3,6 +3,15 @@
   const root=document.getElementById('v8');const J=window.JASON;
   const css=`
   .vF{font-family:var(--sf);color:var(--ink);background:var(--paper)}
+
+  /* First-paint stagger — small rise + fade, guided by --d on each anchor.
+     Disabled under prefers-reduced-motion. */
+  @keyframes vFRise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .vF [data-rise]{opacity:0;animation:vFRise .55s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:var(--d,0ms)}
+  @media (prefers-reduced-motion:reduce){.vF [data-rise]{animation:none;opacity:1}}
+
+  /* Shared focus ring */
+  .vF a:focus-visible,.vF button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px;opacity:1}
   .vF .stage{display:grid;grid-template-columns:minmax(360px,40%) 1fr;min-height:100vh;min-height:100dvh}
   @media(max-width:900px){.vF .stage{grid-template-columns:1fr;min-height:auto}}
 
@@ -11,18 +20,19 @@
   .vF .stage{border-bottom:1px solid var(--ink)}
   .vF .plate .id{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
   .vF .plate .who{display:grid;grid-template-columns:auto 1fr;gap:1.75rem;align-items:stretch}
-  .vF .plate .who-text{display:flex;flex-direction:column;min-height:128px}
-  .vF .plate .pic{width:128px;height:128px;border-radius:50%;background:url('${(J&&J.headshot)||"assets/headshot.jpg"}') center/cover,var(--paper);box-shadow:0 14px 30px -16px rgba(0,0,0,.3),0 0 0 5px var(--paper),0 0 0 6px var(--ink)}
-  .vF .plate h1{font-family:var(--serif);font-weight:600;font-size:clamp(32px,3.4vw,44px);line-height:1.05;letter-spacing:-.025em;margin:0 0 .35rem}
+  .vF .plate .who-text{display:flex;flex-direction:column;justify-content:center;gap:.5rem}
+  /* Pic fills the row height as a square via aspect-ratio, with clamped rails. */
+  .vF .plate .pic{aspect-ratio:1/1;height:80%;width:auto;min-width:120px;max-width:176px;border-radius:50%;background:url('${(J&&J.headshot)||"assets/headshot.jpg"}') center/cover,var(--paper);box-shadow:0 14px 30px -16px rgba(0,0,0,.3),0 0 0 5px var(--paper),0 0 0 6px var(--ink);align-self:center}
+  .vF .plate h1{font-family:var(--serif);font-weight:600;font-size:clamp(34px,3.6vw,48px);line-height:1.02;letter-spacing:-.035em;margin:0 0 .4rem;text-wrap:balance}
   .vF .plate h1 em{font-style:normal;color:var(--accent);font-weight:400}
   .vF .plate .role{font-family:var(--mono);font-size:14.5px;letter-spacing:.06em;color:var(--ink-soft);line-height:1.5}
   .vF .plate .role b{color:var(--ink);font-weight:500}
 
   .vF .plate .subject{margin:0 -2.25rem -1rem;padding:2.25rem 2.25rem .75rem;border-top:1px solid var(--ink);display:flex;align-items:center;justify-content:center}
-  .vF .plate .subject .triad{font-family:var(--serif);display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:.4rem .7rem;line-height:1.15}
+  .vF .plate .subject .triad{font-family:var(--serif);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.4rem .7rem;line-height:1.15}
   .vF .plate .subject .triad .r{font-size:clamp(17px,1.9vw,22px);font-weight:500;letter-spacing:-.015em;color:var(--ink);white-space:nowrap}
   .vF .plate .subject .triad .r em{font-style:normal;color:var(--accent);font-weight:600}
-  .vF .plate .subject .triad .op{font-family:var(--serif);font-style:normal;font-weight:300;font-size:clamp(16px,1.7vw,20px);color:var(--accent);opacity:.85}
+  .vF .plate .subject .triad .op{font-family:var(--serif);font-style:normal;font-weight:400;font-size:clamp(22px,2.4vw,28px);color:var(--accent);opacity:.85;line-height:1}
 
   /* Social links row — left-aligned with the role text, pinned to bottom of column */
   .vF .plate .social{display:flex;gap:.3rem;align-items:center;justify-content:flex-start;margin-top:auto;padding-top:.5rem}
@@ -31,7 +41,7 @@
   .vF .plate .social a svg{width:14px;height:14px;fill:currentColor}
 
   /* Bio block (new, above provenance) */
-  .vF .plate .bio{font-family:var(--serif);font-size:18.5px;line-height:1.55;color:var(--ink);border-left:3px solid var(--accent);padding:.25rem 0 .25rem 1rem;font-weight:400;letter-spacing:-.005em;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
+  .vF .plate .bio{font-family:var(--serif);font-size:19px;line-height:1.6;color:var(--ink);border-left:3px solid var(--accent);padding:.3rem 0 .3rem 1.1rem;font-weight:400;letter-spacing:-.005em;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
   .vF .plate .bio b{color:var(--accent);font-weight:600;font-style:normal}
 
   .vF .plate .block h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 .8rem;font-weight:500;display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
@@ -55,35 +65,37 @@
   .vF .plate .skill .t{font-family:var(--serif);font-size:15.5px;line-height:1.3;letter-spacing:-.01em;color:var(--ink);font-weight:500}
 
   /* Right hall */
-  .vF .hall{padding:2.5rem 2.5rem 3rem;display:flex;flex-direction:column}
-  .vF .hall .intro{max-width:58ch;margin:0 0 2.5rem;font-family:var(--serif);font-size:20px;line-height:1.5;color:var(--ink);font-weight:400;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
+  .vF .hall{padding:3rem 2.75rem 3.5rem;display:flex;flex-direction:column}
+  .vF .hall .intro{max-width:58ch;margin:0 0 2.5rem;font-family:var(--serif);font-size:21px;line-height:1.55;color:var(--ink);font-weight:400;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
   .vF .hall .intro b{color:var(--accent);font-weight:600;font-style:normal}
 
-  .vF .section-head{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 1.75rem;font-weight:500;display:flex;justify-content:space-between;align-items:baseline}
-  .vF .section-head span{color:var(--ink-faint)}
+  .vF .section-head{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 2.25rem;font-weight:500}
+  .vF .section-head span{color:var(--accent)}
 
-  .vF .exhibit{margin:0 -2.5rem;padding:1.5rem 2.5rem;border-top:1px solid var(--rule);display:grid;grid-template-columns:64px 1fr;gap:1.25rem}
+  .vF .exhibit{margin:0 -2.75rem;padding:2.25rem 2.75rem;border-top:1px solid var(--rule);display:grid;grid-template-columns:72px 1fr;gap:1.5rem;transition:background-color .2s ease}
   .vF .exhibit:first-of-type{border-top:2px solid var(--ink)}
-  .vF .exhibit .no{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--ink-faint)}
-  .vF .exhibit .no b{display:block;font-size:34px;letter-spacing:-.03em;color:var(--ink);margin-top:.2rem;font-family:var(--serif);font-weight:600}
-  .vF .spec{display:grid;grid-template-columns:minmax(260px,1.1fr) 1fr;gap:1.5rem;align-items:start}
+  .vF .exhibit:last-of-type{border-bottom:1px solid var(--rule)}
+  .vF .exhibit:hover{background:color-mix(in oklch,var(--accent) 6%,transparent)}
+  .vF .exhibit .no{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--ink-faint);padding-top:.1rem}
+  .vF .exhibit .no b{display:block;font-size:36px;letter-spacing:-.035em;color:var(--ink);margin-top:.25rem;font-family:var(--serif);font-weight:600;font-variant-numeric:lining-nums}
+  .vF .spec{display:grid;grid-template-columns:minmax(260px,1.05fr) 1fr;gap:1.75rem;align-items:start}
   @media(max-width:960px){.vF .spec{grid-template-columns:1fr}}
   .vF .spec .tsr{aspect-ratio:4/3;background:var(--paper-2);color:var(--accent);border:1px solid var(--rule);position:relative;overflow:hidden}
   .vF .spec .tsr svg{position:absolute;inset:0;width:100%;height:100%}
-  .vF .spec h3{font-family:var(--serif);font-weight:500;font-size:24px;line-height:1.25;letter-spacing:-.02em;margin:0 0 .5rem}
+  .vF .spec h3{font-family:var(--serif);font-weight:500;font-size:25.5px;line-height:1.2;letter-spacing:-.025em;margin:0 0 .6rem;text-wrap:balance}
   .vF .spec h3 a{color:var(--ink);text-decoration:none;background-image:linear-gradient(var(--accent),var(--accent));background-repeat:no-repeat;background-size:0 1px;background-position:0 100%;transition:background-size .25s ease,color .15s}
   .vF .spec h3 a:hover{color:var(--accent);background-size:100% 1px;opacity:1}
   .vF .spec h3 a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
   .vF .spec .m{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--ink-faint);margin-bottom:.5rem}
   .vF .spec .m b{color:var(--accent);font-weight:500}
-  .vF .spec p{font-family:var(--serif);font-size:16px;line-height:1.55;color:var(--ink-soft);margin:0 0 .75rem;font-style:normal;font-weight:400;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
+  .vF .spec p{font-family:var(--serif);font-size:16.5px;line-height:1.6;color:var(--ink-soft);margin:0 0 .85rem;max-width:66ch;font-style:normal;font-weight:400;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
   .vF .spec p::before{content:"“";color:var(--accent)}
   .vF .spec p::after{content:"”";color:var(--accent)}
   .vF .spec .au{font-size:13.5px;color:var(--ink-faint);line-height:1.5}
   .vF .spec .au b{color:var(--ink);font-weight:500}
 
   /* Visitors heatmap */
-  .vF .visitors{margin:2.5rem -2.5rem 0;padding:2rem 2.5rem 2.5rem;border-top:1px solid var(--rule)}
+  .vF .visitors{margin:1.25rem -2.75rem 0;padding:.5rem 2.75rem 3rem}
   .vF .vmap{--vmap-blend:multiply;position:relative;aspect-ratio:2/1;width:100%;background:var(--paper-2);border:1px solid var(--rule);overflow:hidden}
   @media (prefers-color-scheme: dark){.vF .vmap{--vmap-blend:screen}}
   .vF .vmap svg{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -114,7 +126,7 @@
   .vF .skill .n{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-faint)}
   .vF .skill .t{font-family:var(--serif);font-size:16px;line-height:1.2;letter-spacing:-.005em;margin-top:.5rem;color:var(--ink)}
 
-  .vF .hall .foot{margin:auto -2.5rem 0;padding:1.25rem 2.5rem 0;border-top:1px solid var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-soft);display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start;min-height:4.5rem}
+  .vF .hall .foot{margin:auto -2.75rem 0;padding:1.5rem 2.75rem 0;border-top:1px solid var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-soft);display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start;min-height:4.5rem}
   .vF .hall .foot a{color:var(--ink)}
 
   /* ── Mobile (≤640px) ── tighter padding, smaller portrait, smaller display type,
@@ -129,13 +141,14 @@
     .vF .plate h1{font-size:clamp(26px,7vw,32px);line-height:1.1;letter-spacing:-.02em;margin:0 0 .25rem}
     .vF .plate .role{font-size:13px;line-height:1.45}
 
-    .vF .plate .social{gap:.25rem;padding-top:.75rem}
-    .vF .plate .social a{width:34px;height:34px}
+    .vF .plate .social{gap:.35rem;padding-top:.75rem}
+    .vF .plate .social a{width:40px;height:40px}
+    .vF .plate .social a svg{width:15px;height:15px}
 
     .vF .plate .subject{margin:0 -1.25rem -1rem;padding:1.5rem 1.25rem .5rem}
     .vF .plate .subject .triad{gap:.3rem .55rem}
     .vF .plate .subject .triad .r{font-size:17px}
-    .vF .plate .subject .triad .op{font-size:15px}
+    .vF .plate .subject .triad .op{font-size:20px}
 
     .vF .plate .bio{font-size:16.5px;line-height:1.55;padding:.15rem 0 .15rem .85rem;border-left-width:2px}
 
@@ -151,7 +164,7 @@
     .vF .plate .contact{margin:auto -1.25rem 0;padding:1.1rem 1.25rem 0;min-height:auto;font-size:11.5px}
 
     .vF .section-head{margin:0 0 1.25rem;font-size:10px}
-    .vF .exhibit{margin:0 -1.25rem;padding:1.25rem 1.25rem;grid-template-columns:44px 1fr;gap:.9rem}
+    .vF .exhibit{margin:0 -1.25rem;padding:1.75rem 1.25rem;grid-template-columns:44px 1fr;gap:.9rem}
     .vF .exhibit .no{font-size:10.5px}
     .vF .exhibit .no b{font-size:22px;margin-top:.15rem}
     .vF .spec{gap:1rem}
@@ -161,7 +174,7 @@
     .vF .spec p{font-size:15px;line-height:1.55}
     .vF .spec .au{font-size:12.5px}
 
-    .vF .visitors{margin:2rem -1.25rem 0;padding:1.5rem 1.25rem 2rem}
+    .vF .visitors{margin:1rem -1.25rem 0;padding:.5rem 1.25rem 2rem}
     .vF .vtable{grid-template-columns:repeat(2,1fr)}
     .vF .vcity{padding:.6rem .6rem}
     .vF .vcity:nth-child(4n){border-right:1px solid var(--rule)}
@@ -179,8 +192,9 @@
     const title = p.link
       ? `<a href="${p.link}" target="_blank" rel="noopener">${p.title}</a>`
       : p.title;
+    const delay = 560 + i*80;
     return `
-    <div class="exhibit">
+    <article class="exhibit" data-rise style="--d:${delay}ms">
       <div class="no"><span>Exhibit</span><b>${String(i+1).padStart(2,'0')}</b></div>
       <div class="spec">
         <div class="tsr">${TEASER(p.teaser)}</div>
@@ -191,7 +205,7 @@
           <div class="au">${p.authors}</div>
         </div>
       </div>
-    </div>`;
+    </article>`;
   }).join('');
 
   const prov = J.education.map(e=>`<div class="row"><span class="y">${e.year}</span><span class="w"><b>${e.what}</b><em>${e.where}${e.detail?' · '+e.detail:''}</em></span></div>`).join('');
@@ -206,7 +220,7 @@
 
   root.innerHTML=`<style>${css}</style><div class="vF"><div class="stage">
     <div class="plate">
-      <div>
+      <div data-rise style="--d:0ms">
         <span class="id"></span>
         <div class="who" style="margin-top:.9rem">
           <div class="pic" aria-hidden="true"></div>
@@ -224,7 +238,7 @@
         </div>
       </div>
 
-      <div class="subject">
+      <div class="subject" data-rise style="--d:140ms">
         <div class="triad" role="figure" aria-label="At the intersection of stem cell biology, microscopy, and data science">
           <span class="r"><em>Stem Cell</em> Biologist</span>
           <span class="op">∩</span>
@@ -234,7 +248,7 @@
         </div>
       </div>
 
-      <div class="bio">${bioHtml}</div>
+      <div class="bio" data-rise style="--d:240ms">${bioHtml}</div>
 
       <div class="block">
         <h3>Provenance <a class="cv-link" href="${J.links.cv}" download aria-label="Download CV">CV ↓</a></h3>
@@ -257,11 +271,11 @@
     </div>
 
     <div class="hall">
-      <div class="section-head"><span>— Selected works</span></div>
+      <div class="section-head" data-rise style="--d:420ms"><span>Selected works</span></div>
       ${specs}
 
       <div class="visitors">
-        <div class="section-head"><span>— Visitors</span></div>
+        <div class="section-head" data-rise style="--d:900ms"><span>Visitors</span></div>
         ${VMAP()}
       </div>
 
