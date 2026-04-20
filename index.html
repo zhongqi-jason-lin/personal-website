@@ -149,6 +149,11 @@
   :root[data-theme="dark"]{--paper:#0f0f10;--paper-2:#1a1a1c;--ink:#f4f3ef;--ink-soft:#b5b2aa;--ink-faint:#8a877e;--rule:#2a2a2c;--accent:oklch(0.72 0.12 205);--accent-soft:oklch(0.72 0.12 205 / 0.15);}
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
+  /* Pin text sizes on iOS Safari — without this, iOS sometimes inflates small
+     text ("text autosize") even when the page has a width=device-width viewport
+     meta, which was making the mobile section-head labels render visibly larger
+     than the plate block h3 labels despite identical CSS font-size. */
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   body{background:var(--paper);color:var(--ink);font-family:var(--sf);font-size:17.5px;line-height:1.55;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.011em;font-optical-sizing:auto;text-rendering:optimizeLegibility;-webkit-tap-highlight-color:transparent}
 
   /* Scroll-boundary edge-hit pulse — a soft blue oval blooms at top/bottom

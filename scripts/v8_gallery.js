@@ -289,7 +289,18 @@
     .vF .plate .skill .t{font-size:14.5px}
 
 
-    .vF .section-head{margin:0 0 1.25rem;font-size:10px}
+    /* Keep section-head visually aligned with the plate block h3 on mobile.
+       The two labels (PROVENANCE / SELECTED WORKS) sit in adjacent sections
+       of the stacked layout; matching font-size + letter-spacing makes them
+       read as one typographic register rather than two competing scales. */
+    .vF .section-head{margin:0 0 1.25rem;font-size:11px;letter-spacing:.14em}
+    /* Reduce the whitespace between a plate section's top rule and its first
+       row. 2.25rem was tuned for the desktop plate padding (2.25rem horizontal)
+       — on mobile the plate is only 1.25rem horizontally, so matching rhythm
+       means pulling the vertical padding in too. */
+    .vF .plate .block .rows,
+    .vF .plate .block .skills{padding-top:1.25rem}
+    .vF .plate .block[data-collapsible][data-open="true"] > h3{margin-bottom:1rem}
     .vF .exhibit{margin:0 -1.25rem;padding:1.75rem 1.25rem;grid-template-columns:44px 1fr;gap:.9rem}
     .vF .exhibit .no{font-size:10.5px}
     .vF .exhibit .no b{font-size:22px;margin-top:.15rem}
@@ -343,7 +354,7 @@
     .vF .plate .block[data-collapsible] .rows,
     .vF .plate .block[data-collapsible] .skills{border-top:0;padding-top:0}
     .vF .plate .block[data-collapsible][data-open="true"] .rows,
-    .vF .plate .block[data-collapsible][data-open="true"] .skills{border-top:1px solid var(--rule);padding-top:2.25rem}
+    .vF .plate .block[data-collapsible][data-open="true"] .skills{border-top:1px solid var(--rule);padding-top:1.25rem}
   }
   /* Mobile teaser polish — bump stroke-width on the diagram strokes so the
      line-drawings don't feel spidery at small screen sizes. Native SVG stroke
