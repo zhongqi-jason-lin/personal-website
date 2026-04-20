@@ -89,4 +89,4 @@ The visit / CV tracking is designed to be data-minimal:
 
 ## License
 
-[MIT](LICENSE) — free to fork, adapt, and deploy. Replace the placeholder content with your own and you're good to go.
+[MIT](LICENSE) 
