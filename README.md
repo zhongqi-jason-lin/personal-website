@@ -2,7 +2,7 @@
 
 A zero-build static template for a personal academic website, wired for privacy-respecting visitor + CV-download tracking on Cloudflare Workers.
 
-![Preview of the template deployed at zhongqilin.org](assets/preview.png)
+![Preview of the template deployed at zhongqilin.org](assets/preview.png?v=2)
 
 One live example deployed from this template: **[zhongqilin.org](https://zhongqilin.org)**.
 
@@ -24,7 +24,7 @@ One live example deployed from this template: **[zhongqilin.org](https://zhongqi
 - **SEO / crawler-ready** — full Open Graph + Twitter Card (with 1200×630 branded card image), `@graph` JSON-LD with a `Person` + `ScholarlyArticle` nodes (the pattern Google Scholar prefers for author↔paper linking), a `<noscript>` shadow-content block that mirrors key content for non-JS crawlers (AI indexers, link-preview bots, Bing), `robots.txt`, and `sitemap.xml`.
 - **Mobile optimized** — dynamic viewport height, safe-area insets, dedicated breakpoints at ≤640 px and ≤380 px, stacked publication layout on narrow hall widths, blurb always expanded on touch. On narrow viewports the long left-plate sections (Provenance, Talks, Toolkit) become **tap-to-expand disclosures** so readers hit Selected Works without scrolling past two screenfuls of context; the first section stays open by default. Automatic hyphenation is disabled at mobile sizes so left-aligned body text wraps on whitespace rather than mid-word.
 
-![Watercolor-style visitor map](assets/map.png)
+![Watercolor-style visitor map](assets/map.png?v=2)
 
 ## Quick start
 
