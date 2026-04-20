@@ -309,6 +309,54 @@
     .vF .hall .foot{margin:auto -1.25rem 0;padding:1.1rem 1.25rem 0;gap:1.25rem;font-size:10.5px;min-height:auto}
   }
 
+  /* ── Mobile plate-block collapse ──
+     On touch/narrow devices the left plate is ~2 screenfuls of context before
+     the first publication. Provenance / Talks / Toolkit become tap-to-expand
+     sections; headings stay as affordances. Uses the same grid-template-rows
+     0fr↔1fr pattern as .vstats-wrap so the reveal animates cleanly without a
+     magic max-height. Desktop ignores all of this — the @media gate below
+     never applies there. */
+  @media (hover:none), (max-width:900px){
+    .vF .plate .block[data-collapsible]{display:grid;grid-template-rows:auto 0fr;transition:grid-template-rows .4s cubic-bezier(.2,.7,.2,1)}
+    .vF .plate .block[data-collapsible][data-open="true"]{grid-template-rows:auto 1fr}
+    .vF .plate .block[data-collapsible] > .block-body{overflow:hidden;min-height:0}
+    /* Heading is the tap target. Reset h3 margin to 0 while collapsed so the
+       closed state reads as a tidy row; expanded state restores rhythm below. */
+    .vF .plate .block[data-collapsible] > h3{cursor:pointer;user-select:none;margin-bottom:0;transition:margin-bottom .3s}
+    .vF .plate .block[data-collapsible][data-open="true"] > h3{margin-bottom:1.6rem}
+    /* Chevron sits at the right edge of the h3. Rotates through a "+" ↔ "−"
+       content swap rather than a transform, so the glyph itself changes
+       character — more legible than a rotated plus at small sizes. */
+    /* Keep h3 flex children vertically centered on mobile so the circular
+       chevron sits on the same visual axis as the text / CV link — the
+       desktop "baseline" alignment reads as "slightly off" with a badge
+       glyph next to a lowercase label. */
+    .vF .plate .block[data-collapsible] > h3{align-items:center}
+    .vF .plate .block[data-collapsible] .h-actions{display:inline-flex;align-items:center;gap:.75rem}
+    .vF .plate .block[data-collapsible] .chevron{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:1px solid var(--rule);border-radius:50%;font-family:var(--mono);font-size:13px;line-height:1;color:var(--ink-soft);font-weight:400;margin-left:.5rem;flex-shrink:0}
+    .vF .plate .block[data-collapsible] .chevron::before{content:"+"}
+    .vF .plate .block[data-collapsible][data-open="true"] .chevron::before{content:"−"}
+    /* Collapsible rows/skills currently carry a top-border + 2.25rem of padding
+       that made sense as a section-rule in the open state; when the body is
+       collapsed we don't want a floating rule line under the heading. Scope
+       the border + padding to the open state only. */
+    .vF .plate .block[data-collapsible] .rows,
+    .vF .plate .block[data-collapsible] .skills{border-top:0;padding-top:0}
+    .vF .plate .block[data-collapsible][data-open="true"] .rows,
+    .vF .plate .block[data-collapsible][data-open="true"] .skills{border-top:1px solid var(--rule);padding-top:2.25rem}
+  }
+  /* Mobile teaser polish — bump stroke-width on the diagram strokes so the
+     line-drawings don't feel spidery at small screen sizes. Native SVG stroke
+     attributes on each shape still win over this, but for the strokes that
+     inherit (circles, most paths), the inherited weight comes up. Also signal
+     tap affordance: cursor:pointer + a subtle active-state dim so tapping the
+     teaser to replay the draw feels intentional. */
+  @media (hover:none), (max-width:900px){
+    .vF .spec .tsr{cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .vF .spec .tsr:active{opacity:.92}
+    .vF .spec .tsr svg g[fill="none"]{stroke-width:1.2}
+  }
+
   /* Ultra-small screens (≤380px): shave horizontal padding so nothing feels cramped. */
   @media(max-width:380px){
     .vF .plate{padding:1.5rem 1rem 1.75rem;gap:1.25rem}
@@ -391,19 +439,19 @@
 
       <div class="bio" data-rise style="--d:240ms">${bioHtml}</div>
 
-      <div class="block">
-        <h3>Provenance <a class="cv-link" href="${J.links.cv}" download aria-label="Download CV">CV ↓</a></h3>
-        <div class="rows">${prov}</div>
+      <div class="block" data-collapsible>
+        <h3>Provenance <span class="h-actions"><a class="cv-link" href="${J.links.cv}" download aria-label="Download CV">CV ↓</a><span class="chevron" aria-hidden="true"></span></span></h3>
+        <div class="block-body"><div class="rows">${prov}</div></div>
       </div>
 
-      <div class="block">
-        <h3>Where I've shown my work</h3>
-        <div class="rows">${shown}</div>
+      <div class="block" data-collapsible>
+        <h3>Where I've shown my work<span class="chevron" aria-hidden="true"></span></h3>
+        <div class="block-body"><div class="rows">${shown}</div></div>
       </div>
 
-      <div class="block">
-        <h3>Toolkit</h3>
-        <div class="skills">${skills}</div>
+      <div class="block" data-collapsible>
+        <h3>Toolkit<span class="chevron" aria-hidden="true"></span></h3>
+        <div class="block-body"><div class="skills">${skills}</div></div>
       </div>
 
     </div>
@@ -655,21 +703,88 @@
     });
   };
 
+  // Rough total animation length = DUR + (elementCount-1)*STAGGER + slack.
+  // With DUR=1180 and STAGGER=30, 20 elements finish at ~1750ms; fills at
+  // ~1740ms. 1900ms debounces re-triggers with a small safety margin.
+  const animationLen = 1900;
+
+  // Touch / narrow-viewport detection. Dual-check mirrors the defensive gate
+  // used for the always-expanded blurb: Chrome DevTools device emulation has a
+  // long-standing bug where (hover:none) isn't reliably honored, so pairing
+  // with (max-width:900px) catches emulated mobile too.
+  const isTouchLike = matchMedia('(hover:none)').matches || matchMedia('(max-width:900px)').matches;
+
   if (!prefersReduced) {
     root.querySelectorAll('.exhibit').forEach((exhibit) => {
       const tsr = exhibit.querySelector('.tsr');
       if (!tsr) return;
       let playing = false;
-      // Rough total animation length = DUR + (elementCount-1)*STAGGER + slack.
-      // With DUR=1180 and STAGGER=30, 20 elements finish at ~1750ms; fills at
-      // ~1740ms. 1900ms debounces re-hovers with a small safety margin.
-      const animationLen = 1900;
-      exhibit.addEventListener('mouseenter', () => {
+      const play = () => {
         if (playing) return;
         playing = true;
         replayDraw(tsr);
         setTimeout(() => { playing = false; }, animationLen);
-      });
+      };
+      // Desktop: hover replays the draw (unchanged behavior).
+      exhibit.addEventListener('mouseenter', play);
+      // Touch devices: tapping the teaser itself re-plays. Scoped to the .tsr
+      // (not the whole exhibit) so title / abstract taps that users might make
+      // while reading don't spuriously replay — the teaser is the affordance.
+      if (isTouchLike) {
+        tsr.addEventListener('click', play);
+      }
     });
+
+    // Mobile scroll-trigger: fire the draw the first time each exhibit scrolls
+    // into view, so the "curator painting" effect — invisible on desktop
+    // without hover — actually appears on phones and tablets. `rootMargin`
+    // pulls the trigger line up 15% from the viewport bottom so the ~1.75s
+    // animation completes while the teaser is comfortably in-frame, not
+    // partially offscreen. `unobserve` after first fire keeps it a one-per-
+    // visit reveal rather than a repeating party trick on scroll-up/down.
+    if (isTouchLike && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const tsr = entry.target.querySelector('.tsr');
+          if (tsr) {
+            // Small delay so the draw starts after the scroll momentum has
+            // settled visually, rather than during the gesture itself.
+            setTimeout(() => replayDraw(tsr), 80);
+          }
+          io.unobserve(entry.target);
+        });
+      }, { threshold: 0.35, rootMargin: '0px 0px -15% 0px' });
+      root.querySelectorAll('.exhibit').forEach((ex) => io.observe(ex));
+    }
   }
+
+  // ── Collapsible plate blocks (mobile only) ─────────────────────────────────
+  // The @media (hover:none), (max-width:900px) CSS applies the collapse
+  // styling; here we wire the tap-to-toggle behavior. The click handler lives
+  // regardless of viewport, but on desktop the CSS gates out the
+  // grid-template-rows collapse, so toggling data-open has no visual effect.
+  // That keeps behavior simple and avoids media-query JS branching.
+  root.querySelectorAll('.plate .block[data-collapsible]').forEach((block) => {
+    const head = block.querySelector('h3');
+    if (!head) return;
+    head.addEventListener('click', (e) => {
+      // Clicks on the CV link inside Provenance must NOT toggle the section —
+      // the user wanted the download, not the panel. Any anchor descendant
+      // short-circuits the toggle.
+      if (e.target.closest('a')) return;
+      const open = block.dataset.open === 'true';
+      block.dataset.open = open ? 'false' : 'true';
+    });
+    // Keyboard affordance: treat the heading as a disclosure button.
+    head.setAttribute('role', 'button');
+    head.setAttribute('tabindex', '0');
+    head.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const open = block.dataset.open === 'true';
+        block.dataset.open = open ? 'false' : 'true';
+      }
+    });
+  });
 })();
