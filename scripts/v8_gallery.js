@@ -80,7 +80,8 @@
   .vF .exhibit:hover{background:color-mix(in oklch,var(--accent) 6%,transparent)}
   .vF .exhibit .no{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--ink-faint);padding-top:.1rem}
   .vF .exhibit .no b{display:block;font-size:36px;letter-spacing:-.035em;color:var(--ink);margin-top:.25rem;font-family:var(--serif);font-weight:600;font-variant-numeric:lining-nums}
-  .vF .spec{display:grid;grid-template-columns:minmax(260px,1.05fr) 1fr;gap:1.75rem;align-items:start}
+  /* Give the teaser more breathing room in 2-col so it never feels stamp-sized at the low end. */
+  .vF .spec{display:grid;grid-template-columns:minmax(300px,1.25fr) 1fr;gap:1.75rem;align-items:start}
   .vF .spec .tsr{aspect-ratio:4/3;background:var(--paper-2);color:var(--accent);border:1px solid var(--rule);position:relative;overflow:hidden}
   .vF .spec .tsr svg{position:absolute;inset:0;width:100%;height:100%}
   .vF .spec h3{font-family:var(--serif);font-weight:500;font-size:25.5px;line-height:1.2;letter-spacing:-.025em;margin:0 0 .6rem;text-wrap:balance}
@@ -130,10 +131,12 @@
   .vF .hall .foot{margin:auto -2.75rem 0;padding:1.5rem 2.75rem 0;border-top:1px solid var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-soft);display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start;min-height:4.5rem}
   .vF .hall .foot a{color:var(--ink)}
 
-  /* Stack publications (teaser above text) while the hall is narrow. */
+  /* Stack publications (teaser above text) while the hall is narrow.
+     3:2 stacked aspect is closer to the 4:3 2-col aspect than 16:9 would be,
+     so the shape hop across the breakpoint is less jarring. */
   @media(max-width:1100px){
     .vF .spec{grid-template-columns:1fr;gap:1.25rem}
-    .vF .spec .tsr{aspect-ratio:16/9}
+    .vF .spec .tsr{aspect-ratio:3/2}
   }
 
   /* ── Mobile (≤640px) ── tighter padding, smaller portrait, smaller display type,
