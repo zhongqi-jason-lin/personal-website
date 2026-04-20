@@ -12,7 +12,7 @@
   .vF .plate .id{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
   .vF .plate .who{display:grid;grid-template-columns:auto 1fr;gap:1.75rem;align-items:stretch}
   .vF .plate .who-text{display:flex;flex-direction:column;min-height:128px}
-  .vF .plate .pic{width:128px;height:128px;border-radius:50%;background:url('${window.__resources?window.__resources.headshot:"assets/headshot.jpg"}') center/cover,var(--paper);box-shadow:0 14px 30px -16px rgba(0,0,0,.3),0 0 0 5px var(--paper),0 0 0 6px var(--ink)}
+  .vF .plate .pic{width:128px;height:128px;border-radius:50%;background:url('${(J&&J.headshot)||"assets/headshot.jpg"}') center/cover,var(--paper);box-shadow:0 14px 30px -16px rgba(0,0,0,.3),0 0 0 5px var(--paper),0 0 0 6px var(--ink)}
   .vF .plate h1{font-family:var(--serif);font-weight:600;font-size:clamp(32px,3.4vw,44px);line-height:1.05;letter-spacing:-.025em;margin:0 0 .35rem}
   .vF .plate h1 em{font-style:normal;color:var(--accent);font-weight:400}
   .vF .plate .role{font-family:var(--mono);font-size:14.5px;letter-spacing:.06em;color:var(--ink-soft);line-height:1.5}

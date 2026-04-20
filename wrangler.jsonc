@@ -11,10 +11,12 @@
     "binding": "ASSETS"
   },
 
-  // KV namespace "personal-website-visits" — stores per-city visit counters
-  // and the __index key that lists all city records.
+  // KV namespace for visitor / CV-download counters. Create one with
+  //   npx wrangler kv namespace create VISITS
+  // then paste the returned id below. The Worker exposes GET /api/visits
+  // and GET /api/cv-stats which read from this binding.
   "kv_namespaces": [
-    { "binding": "VISITS", "id": "a2e2ff13b08145f9826cd73a4e836fcc" }
+    { "binding": "VISITS", "id": "REPLACE_WITH_YOUR_KV_NAMESPACE_ID" }
   ],
 
   // 32-byte random salt for hashing visitor IPs. Generated once, never rotated

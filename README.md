@@ -1,90 +1,87 @@
-# zhongqilin.org
+# Academic site — template
 
-Personal academic website for Zhongqi "Jason" Lin, PhD Candidate in Genetics, Greco Lab, Yale University.
+A zero-build static template for a personal academic website, wired for privacy-respecting visitor + CV-download tracking on Cloudflare Workers.
 
-Live at **[zhongqilin.org](https://zhongqilin.org)**.
+One live example deployed from this template: [zhongqilin.org](https://zhongqilin.org).
 
-## Stack
+## What you get
 
-- **Static HTML / CSS / JS** — no build step, no framework. Single-page academic site rendered by `scripts/v8_gallery.js` against data in `scripts/data.js`.
-- **Cloudflare Workers (with Static Assets)** — serves the repo contents and hosts a tiny fetch handler for visitor + CV-download tracking.
-- **Cloudflare Workers KV** — per-city visit counters with 24h IP-hash dedup.
-- **Cloudflare Registrar + Edge DNS** — `zhongqilin.org` is registered and DNS-managed by Cloudflare.
+- **Static HTML / CSS / JS** — no framework, no build step, no npm install to run the site.
+- **Cloudflare Worker** (`worker/index.js`) — serves the repo as static assets, plus two JSON endpoints:
+  - `GET /api/visits` — per-city visit counts, used by the in-page world map
+  - `GET /api/cv-stats` — total CV downloads and per-country breakdown
+- **Workers KV** storage for the counters, with 24h IP-hash dedup and bot filtering.
+- **SF-family typography** via the system font stack — no webfonts downloaded, fast first paint.
+- **Light/dark theme toggle** with View Transitions API and CSS fallback.
+- **Mobile optimized** — dynamic viewport height, safe-area insets, dedicated breakpoint at ≤640 px.
 
-Typography is Apple's SF family via the system font stack (SF Pro Display, SF Pro Text, SF Mono) — no webfonts downloaded.
-
-## Run locally
+## Quick start
 
 ```bash
-# Static preview (no Worker, no KV, no /api endpoints)
+# clone and serve the static layer
+git clone https://github.com/<you>/<your-fork>.git
+cd <your-fork>
 python3 -m http.server 8000
-open http://localhost:8000
+# → http://localhost:8000
 ```
 
+For the full Worker (API endpoints + local KV simulation):
+
 ```bash
-# Full-stack preview with Worker + simulated KV
 npx wrangler dev
 ```
 
-## Deploy
+## Personalizing
 
-Pushing to `main` triggers a Cloudflare Workers Builds deploy automatically — no CI to configure. The git-connected Workers project is wired to this repo.
+Almost everything you'll edit lives in **`scripts/data.js`**:
+- Name, role, email, social links
+- `headshot: 'assets/headshot.jpg'` — drop your photo into `assets/`, update the path if the extension differs
+- `cv: 'assets/your-cv.pdf'` — drop your CV at that path
+- `bio`, `interests`, `pubs`, `education`, `experience`, `talks`, `skills`
 
-Manual deploy (useful when you want to bypass the git pipeline):
+Accented phrases in the bio are driven by `.replace()` calls in `scripts/v8_gallery.js` — match the strings to phrases in your `bio` text.
 
-```bash
-npx wrangler deploy
-```
+The visitor world map (`scripts/vmap.js`) is Pacific-centered by default — change `CENTER` at the top of the file to re-project around any other meridian.
 
-### One-time infrastructure setup (for forkers)
+## Deploying to Cloudflare
 
-1. **Create a Workers KV namespace** (`Storage & Databases → KV` in the CF dashboard). Paste the returned id into `wrangler.jsonc` under `kv_namespaces`.
-2. **Generate an IP-hashing salt** — required for the visitor dedup to be unguessable:
+1. Push your fork to GitHub.
+2. **Create a KV namespace** in the Cloudflare dashboard (`Storage & Databases → KV → Create`). Paste the namespace id into `wrangler.jsonc` under `kv_namespaces[0].id`, replacing `REPLACE_WITH_YOUR_KV_NAMESPACE_ID`.
+3. **Connect your GitHub repo to Workers Builds** (`Workers & Pages → Create → Connect to Git`). It'll run `npx wrangler deploy` on every push to `main`.
+4. **Set the `IP_SALT` secret** — used to hash visitor IPs so dedup is unguessable:
    ```bash
    openssl rand -hex 32 | npx wrangler secret put IP_SALT
    ```
-3. **Connect the repo** to Workers Builds (`Workers & Pages → Create → Connect to Git`) so each push auto-deploys.
-4. **Add a custom domain** under `Workers & Pages → <project> → Settings → Domains & Routes`.
+5. (Optional) **Add a custom domain** in `Workers & Pages → <project> → Settings → Domains & Routes`. Cloudflare auto-inserts DNS if the domain's zone is on Cloudflare DNS.
 
-## API endpoints
+## Privacy posture
 
-| Route | Purpose |
-|---|---|
-| `GET /api/visits` | Aggregated per-city visitor counts. Used by the map on the home page. 30 s edge cache. |
-| `GET /api/cv-stats` | Total CV downloads + per-country breakdown. |
-
-## Privacy
-
-The visit / CV-download tracking is designed to be as data-minimal as possible:
-
-- **No raw IP addresses are stored.** Visitor dedup uses `SHA-256(ip + IP_SALT)` truncated to 64 bits, TTL'd to 24h. After 24h the hash is unrecoverable — there's no plaintext to correlate.
-- **Only city / country / lat / lon / aggregate count** is persisted per city.
-- **No cookies, no fingerprinting, no third-party calls.**
-- Edge geolocation (`request.cf`) is Cloudflare-native, so visitor data never leaves their network.
-- Bot and Cloudflare-internal traffic is filtered before counting — see `isProbablyBot()` in `worker/index.js`.
+The visit / CV tracking is designed to be data-minimal:
+- **No raw IPs stored.** Dedup uses `SHA-256(ip + IP_SALT)` truncated to 64 bits, TTL'd to 24 h. After that window the hash is unrecoverable — there's no plaintext to correlate.
+- **Only `{city, country, lat, lon, count}`** is persisted per city. No user agents, no cookies, no fingerprinting, no third-party calls.
+- Edge geolocation (`request.cf`) is native to Cloudflare — visitor data never leaves their network.
+- Bot / verified-bot / Cloudflare-internal warmup traffic is filtered pre-log — see `isProbablyBot()` in `worker/index.js`.
 
 ## File structure
 
 ```
 .
-├── index.html              # Entry point — loads scripts in order
+├── index.html              # Entry point — loads scripts/*.js in order
 ├── assets/
-│   ├── headshot.jpg
-│   └── Zhongqi-Jason-Lin-CV.pdf
+│   ├── headshot.svg        # Placeholder silhouette — replace
+│   └── your-cv.pdf         # Not committed — drop yours here
 ├── scripts/
-│   ├── data.js             # Bio, publications, education, skills
-│   ├── teaser.js           # SVG teasers for each paper
+│   ├── data.js             # ALL your content lives here
+│   ├── teaser.js           # SVG teasers for each publication
 │   ├── vmap.js             # World map + /api/visits client
-│   └── v8_gallery.js       # Main renderer (CSS + DOM composition)
+│   └── v8_gallery.js       # Main renderer (CSS + DOM)
 ├── worker/
-│   └── index.js            # Cloudflare Worker: static + /api/*
-├── wrangler.jsonc          # Worker configuration
+│   └── index.js            # Cloudflare Worker — static + /api/*
+├── wrangler.jsonc          # Worker config (KV binding, assets dir)
 ├── .assetsignore           # Files excluded from the static-asset bundle
-└── LICENSE
+└── LICENSE                 # MIT
 ```
 
 ## License
 
-[MIT](LICENSE) — the site infrastructure (HTML, CSS, JS, Worker code) is free to adapt.
-
-The personal content (bio, publications, headshot, CV) is **© Zhongqi Lin** and not covered by the MIT license; please fork the scaffolding and replace the data before reusing.
+[MIT](LICENSE) — free to fork, adapt, and deploy. Replace the placeholder content with your own and you're good to go.
