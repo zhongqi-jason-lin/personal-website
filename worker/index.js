@@ -11,7 +11,6 @@
 const DEDUP_TTL_SECONDS = 24 * 60 * 60;       // count one visit per IP per 24h
 const MAX_CITIES = 500;                        // safety cap on the index
 const INDEX_KEY = '__index';
-const CV_PATH = '/assets/Zhongqi-Jason-Lin-CV.pdf';
 const CV_TOTAL_KEY = 'cv:total';
 const CV_COUNTRIES_KEY = 'cv:countries';
 
@@ -161,17 +160,20 @@ export default {
       );
     }
 
+    // CV-download beacon. Fired by navigator.sendBeacon() from the CV link
+    // click handler. This is the only reliable CV-tracking path — direct GETs
+    // for the CV PDF are served by the Workers Static Assets handler BEFORE
+    // the Worker runs, so we never see them.
+    if (url.pathname === '/api/cv-download' && request.method === 'POST') {
+      ctx.waitUntil(logCvDownload(env, request).catch(() => {}));
+      return new Response(null, { status: 204 });
+    }
+
     // Log the visit in the background — only for HTML page loads so we don't
     // count every favicon/script/asset request.
     const accepts = request.headers.get('accept') || '';
     if (request.method === 'GET' && accepts.includes('text/html')) {
       ctx.waitUntil(logVisit(env, request).catch(() => {}));
-    }
-
-    // Log CV downloads separately — the browser requests the PDF with
-    // Accept: application/pdf, not text/html, so it's a distinct code path.
-    if (request.method === 'GET' && url.pathname === CV_PATH) {
-      ctx.waitUntil(logCvDownload(env, request).catch(() => {}));
     }
 
     return env.ASSETS.fetch(request);

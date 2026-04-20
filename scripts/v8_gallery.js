@@ -297,4 +297,14 @@
   if (typeof window.VMAP_REFRESH === 'function') {
     requestAnimationFrame(() => window.VMAP_REFRESH());
   }
+
+  // Fire a tracking beacon when the CV link is clicked. We instrument the click
+  // rather than the PDF request itself because Cloudflare Workers Static Assets
+  // serves /assets/*.pdf before the Worker runs — direct GETs are invisible.
+  const cvLink = root.querySelector('.cv-link');
+  if (cvLink && 'sendBeacon' in navigator) {
+    cvLink.addEventListener('click', () => {
+      try { navigator.sendBeacon('/api/cv-download'); } catch (_) {}
+    });
+  }
 })();
