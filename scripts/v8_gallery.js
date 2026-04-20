@@ -31,7 +31,7 @@
   .vF .plate .social a svg{width:14px;height:14px;fill:currentColor}
 
   /* Bio block (new, above provenance) */
-  .vF .plate .bio{font-family:var(--serif);font-size:18.5px;line-height:1.55;color:var(--ink);border-left:3px solid var(--accent);padding:.25rem 0 .25rem 1rem;font-weight:400;letter-spacing:-.005em}
+  .vF .plate .bio{font-family:var(--serif);font-size:18.5px;line-height:1.55;color:var(--ink);border-left:3px solid var(--accent);padding:.25rem 0 .25rem 1rem;font-weight:400;letter-spacing:-.005em;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
   .vF .plate .bio b{color:var(--accent);font-weight:600;font-style:normal}
 
   .vF .plate .block h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 .8rem;font-weight:500;display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
@@ -56,7 +56,7 @@
 
   /* Right hall */
   .vF .hall{padding:2.5rem 2.5rem 3rem;display:flex;flex-direction:column}
-  .vF .hall .intro{max-width:58ch;margin:0 0 2.5rem;font-family:var(--serif);font-size:20px;line-height:1.5;color:var(--ink);font-weight:400}
+  .vF .hall .intro{max-width:58ch;margin:0 0 2.5rem;font-family:var(--serif);font-size:20px;line-height:1.5;color:var(--ink);font-weight:400;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
   .vF .hall .intro b{color:var(--accent);font-weight:600;font-style:normal}
 
   .vF .section-head{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 1.75rem;font-weight:500;display:flex;justify-content:space-between;align-items:baseline}
@@ -76,7 +76,7 @@
   .vF .spec h3 a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
   .vF .spec .m{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--ink-faint);margin-bottom:.5rem}
   .vF .spec .m b{color:var(--accent);font-weight:500}
-  .vF .spec p{font-family:var(--serif);font-size:16px;line-height:1.55;color:var(--ink-soft);margin:0 0 .75rem;font-style:normal;font-weight:400}
+  .vF .spec p{font-family:var(--serif);font-size:16px;line-height:1.55;color:var(--ink-soft);margin:0 0 .75rem;font-style:normal;font-weight:400;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
   .vF .spec p::before{content:"“";color:var(--accent)}
   .vF .spec p::after{content:"”";color:var(--accent)}
   .vF .spec .au{font-size:13.5px;color:var(--ink-faint);line-height:1.5}
