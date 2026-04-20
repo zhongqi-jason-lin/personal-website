@@ -148,6 +148,27 @@ export default {
       );
     }
 
+    // Temporary diagnostic — returns what the Worker sees for this request.
+    // Visit this URL in the browser where your visits aren't registering to see why.
+    if (url.pathname === '/api/debug' && request.method === 'GET') {
+      const cf = request.cf || {};
+      return new Response(JSON.stringify({
+        ua: request.headers.get('user-agent') || null,
+        accept: request.headers.get('accept') || null,
+        botFiltered: isProbablyBot(request),
+        cf: {
+          country: cf.country,
+          city: cf.city,
+          region: cf.region,
+          latitude: cf.latitude,
+          longitude: cf.longitude,
+          asOrganization: cf.asOrganization,
+          colo: cf.colo,
+          verifiedBot: cf.botManagement?.verifiedBot ?? null,
+        },
+      }, null, 2), { headers: { 'content-type': 'application/json' } });
+    }
+
     if (url.pathname === '/api/cv-stats' && request.method === 'GET') {
       const stats = await getCvStats(env);
       return new Response(
