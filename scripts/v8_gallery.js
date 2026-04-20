@@ -222,11 +222,11 @@
   const shown = J.talks.map(t=>`<div class="row"><span class="y">${t.year}</span><span class="w"><b>${t.what}</b><em>${t.note}</em></span></div>`).join('');
   const skills = J.skills.map((s,i)=>`<div class="skill"><span class="n">S.${String(i+1).padStart(2,'0')}</span><span class="t">${s}</span></div>`).join('');
 
-  // Bio highlight for the left block
+  // Bio highlight: wrap specific phrases in <b> so they pick up the accent color.
+  // Match the strings below to phrases you've used in J.bio (data.js).
   const bioHtml = J.bio
-    .replace('transcription dynamics','<b>transcription dynamics</b>')
-    .replace('cellular behaviors','<b>cellular behaviors</b>')
-    .replace('tissue architecture','<b>tissue architecture</b>');
+    .replace('two or three concepts','<b>two or three concepts</b>')
+    .replace('accented','<b>accented</b>');
 
   root.innerHTML=`<style>${css}</style><div class="vF"><div class="stage">
     <div class="plate">
@@ -235,7 +235,7 @@
         <div class="who" style="margin-top:.9rem">
           <div class="pic" aria-hidden="true"></div>
           <div class="who-text">
-            <h1>Zhongqi <em>"Jason"</em> Lin</h1>
+            <h1>${J.name}</h1>
             <div class="role"><b>${J.role}</b><br>${J.lab} · ${J.institution}</div>
             <div class="social" aria-label="Contact links">
               <a href="${J.links.email}" aria-label="Email" title="Email"><svg viewBox="0 0 24 24"><path d="M3 5.5A1.5 1.5 0 0 1 4.5 4h15A1.5 1.5 0 0 1 21 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5v-13zm2 .3v.4l7 4.2 7-4.2v-.4H5zm14 2.56-6.47 3.88a1 1 0 0 1-1.06 0L5 8.36V18h14V8.36z"/></svg></a>
@@ -249,12 +249,12 @@
       </div>
 
       <div class="subject" data-rise style="--d:140ms">
-        <div class="triad" role="figure" aria-label="At the intersection of stem cell biology, microscopy, and data science">
-          <span class="r"><em>Stem Cell</em> Biologist</span>
-          <span class="op">∩</span>
-          <span class="r"><em>Microscop</em>ist</span>
-          <span class="op">∩</span>
-          <span class="r"><em>Data</em> Scientist</span>
+        <div class="triad" role="figure" aria-label="Research, Teaching, Writing">
+          <span class="r"><em>Research</em></span>
+          <span class="op">·</span>
+          <span class="r"><em>Teaching</em></span>
+          <span class="op">·</span>
+          <span class="r"><em>Writing</em></span>
         </div>
       </div>
 

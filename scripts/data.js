@@ -2,7 +2,9 @@
 // Everything the renderer consumes lives here; no changes to v8_gallery.js are
 // needed unless you want to restructure the layout.
 window.JASON = {
-  name: 'Dr. Jane Q. Example',
+  // The h1 renders this string verbatim — wrap a nickname or initial in <em>
+  // to pick up the accent color (see .vF .plate h1 em in v8_gallery.js).
+  name: 'Jane <em>Q.</em> Example',
   shortName: 'Jane Example',
   email: 'jane.example@your-institution.edu',
   phone: '',
