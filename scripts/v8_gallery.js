@@ -13,11 +13,16 @@
   /* Shared focus ring */
   .vF a:focus-visible,.vF button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px;opacity:1}
   .vF .stage{display:grid;grid-template-columns:minmax(360px,40%) 1fr;min-height:100vh;min-height:100dvh}
-  @media(max-width:900px){.vF .stage{grid-template-columns:1fr;min-height:auto}}
+  /* Mobile: stage becomes flex column so the collection footer can be pushed to
+     the viewport bottom via margin-top:auto when content is shorter than 100dvh. */
+  @media(max-width:900px){
+    .vF .stage{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+    .vF .collection{margin-top:auto}
+  }
 
   /* Left plate — scaled up */
   .vF .plate{background:var(--paper-2);border-right:1px solid var(--rule);padding:2.5rem 2.25rem 3rem;display:flex;flex-direction:column;gap:2rem}
-  .vF .stage{border-bottom:1px solid var(--ink)}
+  /* No stage border-bottom — the .collection footer row draws the page-end rule. */
   .vF .plate .id{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
   .vF .plate .who{display:grid;grid-template-columns:auto 1fr;gap:1.5rem;align-items:center}
   .vF .plate .who-text{display:flex;flex-direction:column;justify-content:center;gap:.45rem}
@@ -46,21 +51,31 @@
   .vF .plate .bio{font-family:var(--serif);font-size:19px;line-height:1.6;color:var(--ink);border-left:3px solid var(--accent);padding:.3rem 0 .3rem 1.1rem;font-weight:400;letter-spacing:-.005em;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
   .vF .plate .bio b{color:var(--accent);font-weight:600;font-style:normal}
 
-  .vF .plate .block h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 .8rem;font-weight:500;display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
+  /* Plate block heading — mirrors the Selected Works section-head spacing:
+     1.9rem below label, then a 1px rule line (carried by .rows / .skills),
+     then 2.25rem padding before content. */
+  .vF .plate .block h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 1.9rem;font-weight:500;display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
   .vF .plate .block h3 .cv-link{color:var(--ink-soft);font:inherit;letter-spacing:inherit;text-transform:inherit;border-bottom:1px solid transparent;padding-bottom:2px;transition:color .15s,border-color .15s}
   .vF .plate .block h3 .cv-link:hover{color:var(--accent);border-bottom-color:var(--accent);opacity:1}
-  .vF .plate .rows{display:grid;gap:.15rem}
+  /* Section-rule line above .rows with 2.25rem padding before the first row. */
+  .vF .plate .rows{display:grid;gap:.15rem;border-top:1px solid var(--rule);margin:0 -2.25rem;padding:2.25rem 2.25rem 0}
   .vF .plate .row{display:grid;grid-template-columns:120px 1fr;gap:.9rem;padding:.65rem 0;border-top:1px dashed var(--rule);align-items:baseline}
   .vF .plate .row:first-child{border-top:0}
   .vF .plate .row .y{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);letter-spacing:.04em;padding-top:.15rem}
   .vF .plate .row .w b{font-family:var(--serif);font-weight:500;font-size:16.5px;line-height:1.25;color:var(--ink);letter-spacing:-.01em}
   .vF .plate .row .w em{font-style:normal;color:var(--ink-faint);font-size:13.5px;display:block;margin-top:.2rem;font-family:var(--serif);letter-spacing:-.005em;line-height:1.35}
 
-  .vF .plate .contact{margin:auto -2.25rem 0;padding:1.25rem 2.25rem 0;border-top:1px solid var(--ink);font-family:var(--mono);font-size:12px;color:var(--ink-soft);letter-spacing:.04em;line-height:1.7;min-height:4.5rem;display:flex;flex-direction:column;justify-content:flex-start}
-  .vF .plate .contact a{color:var(--ink)}
+  /* Full-width page-footer row: spans both stage columns, top border forms
+     the page-end horizontal line, text left-aligned to the stage's left edge. */
+  .vF .collection{grid-column:1 / -1;border-top:1px solid var(--rule);padding:1.5rem 2.25rem;font-family:var(--mono);font-size:12px;color:var(--ink-soft);letter-spacing:.06em;text-align:left;background:var(--paper)}
+
+  /* Visitors section: wrap the map in a .vsection that carries the section-rule
+     above it, with 2.25rem padding above the map — mirrors the label→line→
+     content rhythm used by Selected Works. */
+  .vF .vsection{border-top:1px solid var(--rule);padding-top:2.25rem}
 
   /* Toolkit in left plate */
-  .vF .plate .skills{margin:0 -2.25rem;padding:0 2.25rem;display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid var(--ink)}
+  .vF .plate .skills{margin:0 -2.25rem;padding:2.25rem 2.25rem 0;display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid var(--rule)}
   .vF .plate .skill{padding:.95rem .75rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:.4rem;min-height:68px}
   .vF .plate .skill:nth-child(2n){border-right:0}
   .vF .plate .skill .n{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink-faint)}
@@ -71,13 +86,14 @@
   .vF .hall .intro{max-width:58ch;margin:0 0 2.5rem;font-family:var(--serif);font-size:21px;line-height:1.55;color:var(--ink);font-weight:400;text-align:justify;hyphens:auto;-webkit-hyphens:auto;text-wrap:pretty}
   .vF .hall .intro b{color:var(--accent);font-weight:600;font-style:normal}
 
-  .vF .section-head{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 2.25rem;font-weight:500}
+  .vF .section-head{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 1.9rem;font-weight:500}
   .vF .section-head span{color:var(--accent)}
 
   .vF .exhibit{margin:0 -2.75rem;padding:2.25rem 2.75rem;border-top:1px solid var(--rule);display:grid;grid-template-columns:72px 1fr;gap:1.5rem;transition:background-color .2s ease}
-  .vF .exhibit:first-of-type{border-top:2px solid var(--ink)}
-  .vF .exhibit:last-of-type{border-bottom:1px solid var(--rule)}
-  .vF .exhibit:hover{background:color-mix(in oklch,var(--accent) 6%,transparent)}
+  /* All section lines uniform: no heavier rule on the first exhibit, no terminal
+     border on the last. The Visitors section-head sits ABOVE the map's own top
+     border — same pattern as Selected Works → first-exhibit-line. */
+  .vF .exhibit:hover{background:var(--accent-soft)}
   .vF .exhibit .no{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--ink-faint);padding-top:.1rem}
   .vF .exhibit .no b{display:block;font-size:36px;letter-spacing:-.035em;color:var(--ink);margin-top:.25rem;font-family:var(--serif);font-weight:600;font-variant-numeric:lining-nums}
   /* Give the teaser more breathing room in 2-col so it never feels stamp-sized at the low end. */
@@ -171,7 +187,6 @@
     .vF .plate .skill{padding:.75rem .65rem;min-height:58px}
     .vF .plate .skill .t{font-size:14.5px}
 
-    .vF .plate .contact{margin:auto -1.25rem 0;padding:1.1rem 1.25rem 0;min-height:auto;font-size:11.5px}
 
     .vF .section-head{margin:0 0 1.25rem;font-size:10px}
     .vF .exhibit{margin:0 -1.25rem;padding:1.75rem 1.25rem;grid-template-columns:44px 1fr;gap:.9rem}
@@ -275,9 +290,6 @@
         <div class="skills">${skills}</div>
       </div>
 
-      <div class="contact">
-        Collection · ${new Date().getFullYear()}
-      </div>
     </div>
 
     <div class="hall">
@@ -286,10 +298,11 @@
 
       <div class="visitors">
         <div class="section-head" data-rise style="--d:900ms"><span>Visitors</span></div>
-        ${VMAP()}
+        <div class="vsection">${VMAP()}</div>
       </div>
 
     </div>
+    <div class="collection">Collection · ${new Date().getFullYear()}</div>
   </div></div>`;
 
   // Swap seeded mock visitors for live /api/visits data once the DOM is attached.
