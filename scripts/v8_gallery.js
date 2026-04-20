@@ -137,7 +137,7 @@
 
     .vF .plate .who{grid-template-columns:88px 1fr;gap:1rem;align-items:center}
     .vF .plate .who-text{min-height:0}
-    .vF .plate .pic{width:88px;height:88px;box-shadow:0 10px 20px -14px rgba(0,0,0,.3),0 0 0 3px var(--paper),0 0 0 4px var(--ink)}
+    .vF .plate .pic{width:88px;height:88px;min-width:0;max-width:none;aspect-ratio:auto;box-shadow:0 10px 20px -14px rgba(0,0,0,.3),0 0 0 3px var(--paper),0 0 0 4px var(--ink)}
     .vF .plate h1{font-size:clamp(26px,7vw,32px);line-height:1.1;letter-spacing:-.02em;margin:0 0 .25rem}
     .vF .plate .role{font-size:13px;line-height:1.45}
 
