@@ -129,6 +129,26 @@
   .vF .hall .foot{margin:auto -2.75rem 0;padding:1.5rem 2.75rem 0;border-top:1px solid var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-soft);display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start;min-height:4.5rem}
   .vF .hall .foot a{color:var(--ink)}
 
+  /* ── Tablet / narrow-plate zone (901–1100px) ──
+     Stage is still two columns but the plate is tight (~360–440px). The dynamic
+     aspect-ratio pic + 48px display h1 don't fit together cleanly here, so lock
+     the pic to a fixed square and dial the heading down. */
+  @media(min-width:901px) and (max-width:1100px){
+    .vF .plate{padding:2rem 1.75rem 2.5rem}
+    .vF .plate .who{grid-template-columns:112px 1fr;gap:1.25rem;align-items:center}
+    .vF .plate .who-text{justify-content:center;gap:.4rem}
+    .vF .plate .pic{width:112px;height:112px;min-width:0;max-width:none;aspect-ratio:auto}
+    .vF .plate h1{font-size:clamp(28px,3vw,36px);line-height:1.06;letter-spacing:-.025em;margin:0 0 .3rem}
+    .vF .plate .role{font-size:13.5px}
+    .vF .plate .subject{margin:0 -1.75rem -1rem;padding:1.75rem 1.75rem .75rem}
+    .vF .plate .bio{font-size:17.5px;line-height:1.55}
+    .vF .plate .skills,.vF .plate .contact{margin-left:-1.75rem;margin-right:-1.75rem;padding-left:1.75rem;padding-right:1.75rem}
+    .vF .hall{padding:2.25rem 2rem 2.75rem}
+    .vF .exhibit,.vF .visitors,.vF .hall .foot{margin-left:-2rem;margin-right:-2rem;padding-left:2rem;padding-right:2rem}
+    .vF .spec{grid-template-columns:1fr;gap:1.25rem}
+    .vF .spec .tsr{aspect-ratio:16/9}
+  }
+
   /* ── Mobile (≤640px) ── tighter padding, smaller portrait, smaller display type,
      and shrunk edge-to-edge negative margins so content doesn't overhang the viewport. */
   @media(max-width:640px){
