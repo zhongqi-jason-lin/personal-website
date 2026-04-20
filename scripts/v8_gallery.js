@@ -3,8 +3,8 @@
   const root=document.getElementById('v8');const J=window.JASON;
   const css=`
   .vF{font-family:var(--sf);color:var(--ink);background:var(--paper)}
-  .vF .stage{display:grid;grid-template-columns:minmax(360px,40%) 1fr;min-height:100vh}
-  @media(max-width:900px){.vF .stage{grid-template-columns:1fr}}
+  .vF .stage{display:grid;grid-template-columns:minmax(360px,40%) 1fr;min-height:100vh;min-height:100dvh}
+  @media(max-width:900px){.vF .stage{grid-template-columns:1fr;min-height:auto}}
 
   /* Left plate — scaled up */
   .vF .plate{background:var(--paper-2);border-right:1px solid var(--rule);padding:2.5rem 2.25rem 3rem;display:flex;flex-direction:column;gap:2rem}
@@ -116,6 +116,64 @@
 
   .vF .hall .foot{margin:auto -2.5rem 0;padding:1.25rem 2.5rem 0;border-top:1px solid var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-soft);display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start;min-height:4.5rem}
   .vF .hall .foot a{color:var(--ink)}
+
+  /* ── Mobile (≤640px) ── tighter padding, smaller portrait, smaller display type,
+     and shrunk edge-to-edge negative margins so content doesn't overhang the viewport. */
+  @media(max-width:640px){
+    .vF .plate{padding:1.75rem 1.25rem 2rem;gap:1.5rem;border-right:none;border-bottom:1px solid var(--rule)}
+    .vF .hall{padding:1.75rem 1.25rem 2.5rem}
+
+    .vF .plate .who{grid-template-columns:88px 1fr;gap:1rem;align-items:center}
+    .vF .plate .who-text{min-height:0}
+    .vF .plate .pic{width:88px;height:88px;box-shadow:0 10px 20px -14px rgba(0,0,0,.3),0 0 0 3px var(--paper),0 0 0 4px var(--ink)}
+    .vF .plate h1{font-size:clamp(26px,7vw,32px);line-height:1.1;letter-spacing:-.02em;margin:0 0 .25rem}
+    .vF .plate .role{font-size:13px;line-height:1.45}
+
+    .vF .plate .social{gap:.25rem;padding-top:.75rem}
+    .vF .plate .social a{width:34px;height:34px}
+
+    .vF .plate .subject{margin:0 -1.25rem -1rem;padding:1.5rem 1.25rem .5rem}
+    .vF .plate .subject .triad{gap:.3rem .55rem}
+    .vF .plate .subject .triad .r{font-size:17px}
+    .vF .plate .subject .triad .op{font-size:15px}
+
+    .vF .plate .bio{font-size:16.5px;line-height:1.55;padding:.15rem 0 .15rem .85rem;border-left-width:2px}
+
+    .vF .plate .row{grid-template-columns:90px 1fr;gap:.65rem;padding:.55rem 0}
+    .vF .plate .row .y{font-size:11px}
+    .vF .plate .row .w b{font-size:15.5px}
+    .vF .plate .row .w em{font-size:13px}
+
+    .vF .plate .skills{margin:0 -1.25rem;padding:0 1.25rem}
+    .vF .plate .skill{padding:.75rem .65rem;min-height:58px}
+    .vF .plate .skill .t{font-size:14.5px}
+
+    .vF .plate .contact{margin:auto -1.25rem 0;padding:1.1rem 1.25rem 0;min-height:auto;font-size:11.5px}
+
+    .vF .section-head{margin:0 0 1.25rem;font-size:10px}
+    .vF .exhibit{margin:0 -1.25rem;padding:1.25rem 1.25rem;grid-template-columns:44px 1fr;gap:.9rem}
+    .vF .exhibit .no{font-size:10.5px}
+    .vF .exhibit .no b{font-size:22px;margin-top:.15rem}
+    .vF .spec{gap:1rem}
+    .vF .spec .tsr{aspect-ratio:3/2}
+    .vF .spec h3{font-size:20px;line-height:1.25}
+    .vF .spec .m{font-size:11px}
+    .vF .spec p{font-size:15px;line-height:1.55}
+    .vF .spec .au{font-size:12.5px}
+
+    .vF .visitors{margin:2rem -1.25rem 0;padding:1.5rem 1.25rem 2rem}
+    .vF .vtable{grid-template-columns:repeat(2,1fr)}
+    .vF .vcity{padding:.6rem .6rem}
+    .vF .vcity:nth-child(4n){border-right:1px solid var(--rule)}
+    .vF .vcity:nth-child(2n){border-right:0}
+
+    .vF .hall .foot{margin:auto -1.25rem 0;padding:1.1rem 1.25rem 0;gap:1.25rem;font-size:10.5px;min-height:auto}
+  }
+
+  /* Keep the floating theme toggle out of iOS home-indicator zone */
+  @supports(padding:max(0px)){
+    #theme-toggle{right:max(.75rem,env(safe-area-inset-right));bottom:max(.75rem,env(safe-area-inset-bottom))}
+  }
   `;
   const specs = J.pubs.map((p,i)=>{
     const title = p.link
