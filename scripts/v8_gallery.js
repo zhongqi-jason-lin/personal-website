@@ -19,10 +19,12 @@
   .vF .plate{background:var(--paper-2);border-right:1px solid var(--rule);padding:2.5rem 2.25rem 3rem;display:flex;flex-direction:column;gap:2rem}
   .vF .stage{border-bottom:1px solid var(--ink)}
   .vF .plate .id{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
-  .vF .plate .who{display:grid;grid-template-columns:auto 1fr;gap:1.75rem;align-items:stretch}
-  .vF .plate .who-text{display:flex;flex-direction:column;justify-content:center;gap:.5rem}
-  /* Pic fills the row height as a square via aspect-ratio, with clamped rails. */
-  .vF .plate .pic{aspect-ratio:1/1;height:80%;width:auto;min-width:120px;max-width:176px;border-radius:50%;background:url('${(J&&J.headshot)||"assets/headshot.jpg"}') center/cover,var(--paper);box-shadow:0 14px 30px -16px rgba(0,0,0,.3),0 0 0 5px var(--paper),0 0 0 6px var(--ink);align-self:center}
+  .vF .plate .who{display:grid;grid-template-columns:auto 1fr;gap:1.5rem;align-items:center}
+  .vF .plate .who-text{display:flex;flex-direction:column;justify-content:center;gap:.45rem}
+  /* Pic: fluid square that scales with viewport via clamp — no dynamic height
+     coupling, no axis-asymmetric clamps, so it can never go oval and transitions
+     smoothly as the viewport resizes. */
+  .vF .plate .pic{width:clamp(104px,11vw,168px);aspect-ratio:1/1;height:auto;border-radius:50%;background:url('${(J&&J.headshot)||"assets/headshot.jpg"}') center/cover,var(--paper);box-shadow:0 14px 30px -16px rgba(0,0,0,.3),0 0 0 5px var(--paper),0 0 0 6px var(--ink);align-self:center}
   .vF .plate h1{font-family:var(--serif);font-weight:600;font-size:clamp(34px,3.6vw,48px);line-height:1.02;letter-spacing:-.035em;margin:0 0 .4rem;text-wrap:balance}
   .vF .plate h1 em{font-style:normal;color:var(--accent);font-weight:400}
   .vF .plate .role{font-family:var(--mono);font-size:14.5px;letter-spacing:.06em;color:var(--ink-soft);line-height:1.5}
@@ -79,7 +81,6 @@
   .vF .exhibit .no{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--ink-faint);padding-top:.1rem}
   .vF .exhibit .no b{display:block;font-size:36px;letter-spacing:-.035em;color:var(--ink);margin-top:.25rem;font-family:var(--serif);font-weight:600;font-variant-numeric:lining-nums}
   .vF .spec{display:grid;grid-template-columns:minmax(260px,1.05fr) 1fr;gap:1.75rem;align-items:start}
-  @media(max-width:960px){.vF .spec{grid-template-columns:1fr}}
   .vF .spec .tsr{aspect-ratio:4/3;background:var(--paper-2);color:var(--accent);border:1px solid var(--rule);position:relative;overflow:hidden}
   .vF .spec .tsr svg{position:absolute;inset:0;width:100%;height:100%}
   .vF .spec h3{font-family:var(--serif);font-weight:500;font-size:25.5px;line-height:1.2;letter-spacing:-.025em;margin:0 0 .6rem;text-wrap:balance}
@@ -129,22 +130,8 @@
   .vF .hall .foot{margin:auto -2.75rem 0;padding:1.5rem 2.75rem 0;border-top:1px solid var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-soft);display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start;min-height:4.5rem}
   .vF .hall .foot a{color:var(--ink)}
 
-  /* ── Tablet / narrow-plate zone (901–1100px) ──
-     Stage is still two columns but the plate is tight (~360–440px). The dynamic
-     aspect-ratio pic + 48px display h1 don't fit together cleanly here, so lock
-     the pic to a fixed square and dial the heading down. */
-  @media(min-width:901px) and (max-width:1100px){
-    .vF .plate{padding:2rem 1.75rem 2.5rem}
-    .vF .plate .who{grid-template-columns:112px 1fr;gap:1.25rem;align-items:center}
-    .vF .plate .who-text{justify-content:center;gap:.4rem}
-    .vF .plate .pic{width:112px;height:112px;min-width:0;max-width:none;aspect-ratio:auto}
-    .vF .plate h1{font-size:clamp(28px,3vw,36px);line-height:1.06;letter-spacing:-.025em;margin:0 0 .3rem}
-    .vF .plate .role{font-size:13.5px}
-    .vF .plate .subject{margin:0 -1.75rem -1rem;padding:1.75rem 1.75rem .75rem}
-    .vF .plate .bio{font-size:17.5px;line-height:1.55}
-    .vF .plate .skills,.vF .plate .contact{margin-left:-1.75rem;margin-right:-1.75rem;padding-left:1.75rem;padding-right:1.75rem}
-    .vF .hall{padding:2.25rem 2rem 2.75rem}
-    .vF .exhibit,.vF .visitors,.vF .hall .foot{margin-left:-2rem;margin-right:-2rem;padding-left:2rem;padding-right:2rem}
+  /* Stack publications (teaser above text) while the hall is narrow. */
+  @media(max-width:1100px){
     .vF .spec{grid-template-columns:1fr;gap:1.25rem}
     .vF .spec .tsr{aspect-ratio:16/9}
   }
