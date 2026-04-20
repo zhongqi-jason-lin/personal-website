@@ -43,8 +43,10 @@
   .vF .plate .subject .triad .r em{font-style:normal;color:var(--accent);font-weight:600}
   .vF .plate .subject .triad .op{font-family:var(--serif);font-style:normal;font-weight:300;font-size:clamp(16px,1.7vw,20px);color:var(--accent);opacity:.85;line-height:1}
 
-  /* Social links row — left-aligned with the role text, pinned to bottom of column */
-  .vF .plate .social{display:flex;gap:.3rem;align-items:center;justify-content:flex-start;margin-top:auto;padding-top:.5rem}
+  /* Social links row — now a sibling of .who (not inside .who-text), so it
+     lives in its own row below the headshot + name block. Left-aligned on
+     desktop to hug the left rail, centered on mobile (see @media rule). */
+  .vF .plate .social{display:flex;gap:.3rem;align-items:center;justify-content:flex-start;padding-top:.75rem}
   .vF .plate .social a{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--rule);border-radius:50%;color:var(--ink-soft);background:var(--paper);transition:all .15s}
   .vF .plate .social a:hover{color:var(--paper);background:var(--ink);border-color:var(--ink);opacity:1}
   .vF .plate .social a svg{width:14px;height:14px;fill:currentColor}
@@ -261,13 +263,28 @@
     .vF .plate{padding:1.75rem 1.25rem 2rem;gap:1.5rem;border-right:none;border-bottom:1px solid var(--rule)}
     .vF .hall{padding:1.75rem 1.25rem 2.5rem}
 
-    .vF .plate .who{grid-template-columns:88px 1fr;gap:1rem;align-items:center}
-    .vF .plate .who-text{min-height:0}
-    .vF .plate .pic{width:88px;height:88px;min-width:0;max-width:none;aspect-ratio:auto;box-shadow:0 10px 20px -14px rgba(0,0,0,.3),0 0 0 3px var(--paper),0 0 0 4px var(--ink)}
+    /* Swap the .who grid for a centered flex row on mobile so the
+       headshot + name block sits in the middle of the plate, not pinned
+       to the left edge. align-items:center keeps the circular portrait
+       vertically balanced against the name+role column, justify-content:
+       center centers the whole group, grid-template-columns:unset clears
+       the desktop grid declaration. */
+    .vF .plate .who{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1rem;grid-template-columns:unset}
+    /* Center the text column's own children (name, role, social) so the
+       horizontal centering of the outer group cascades all the way down. */
+    .vF .plate .who-text{min-height:0;align-items:center;text-align:center}
+    /* Headshot trimmed to 72px on mobile. At 88 the headshot + name column
+       filled the plate edge-to-edge, leaving no breathing room for the
+       centering to read visually. 72px hands back ~15px per side, enough
+       for the group to feel set in the middle of the card. */
+    .vF .plate .pic{width:72px;height:72px;min-width:0;max-width:none;aspect-ratio:auto;flex-shrink:0;box-shadow:0 10px 20px -14px rgba(0,0,0,.3),0 0 0 3px var(--paper),0 0 0 4px var(--ink)}
     .vF .plate h1{font-size:clamp(26px,7vw,32px);line-height:1.1;letter-spacing:-.02em;margin:0 0 .25rem}
     .vF .plate .role{font-size:13px;line-height:1.45}
 
-    .vF .plate .social{gap:.35rem;padding-top:.75rem}
+    /* Social icons: centered horizontally, full-width row below role so
+       the five circles sit on the plate's centerline rather than hanging
+       off the left edge of the text column. */
+    .vF .plate .social{gap:.35rem;padding-top:.75rem;justify-content:center}
     .vF .plate .social a{width:40px;height:40px}
     .vF .plate .social a svg{width:15px;height:15px}
 
@@ -439,14 +456,14 @@
           <div class="who-text">
             <h1>${J.name}</h1>
             <div class="role"><b>${J.role}</b><br>${J.lab} · ${J.institution}</div>
-            <div class="social" aria-label="Contact links">
-              <a href="${J.links.email}" aria-label="Email" title="Email"><svg viewBox="0 0 24 24"><path d="M3 5.5A1.5 1.5 0 0 1 4.5 4h15A1.5 1.5 0 0 1 21 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5v-13zm2 .3v.4l7 4.2 7-4.2v-.4H5zm14 2.56-6.47 3.88a1 1 0 0 1-1.06 0L5 8.36V18h14V8.36z"/></svg></a>
-              <a href="${J.links.github}" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.23c0 4.52 2.87 8.35 6.84 9.71.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.46-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.38 9.38 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.8-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.23C22 6.58 17.52 2 12 2z"/></svg></a>
-              <a href="${J.links.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4v11H3v-11zm7 0h3.83v1.5h.05c.53-1 1.84-2.06 3.79-2.06 4.06 0 4.8 2.67 4.8 6.15V20.5h-4v-4.9c0-1.17-.02-2.67-1.63-2.67-1.64 0-1.89 1.28-1.89 2.59V20.5h-4v-11z"/></svg></a>
-              <a href="${J.links.scholar}" target="_blank" rel="noopener" aria-label="Google Scholar" title="Google Scholar"><svg viewBox="0 0 24 24"><path d="M12 2 1 9l4 2.55V17l7 4 7-4v-5.45L19 10.1V16h2V9L12 2zm0 2.3L18.73 9 12 13.27 5.27 9 12 4.3zM7 12.84l5 3.2 5-3.2V16l-5 2.86L7 16v-3.16z"/></svg></a>
-              <a href="${J.links.greco}" target="_blank" rel="noopener" aria-label="Greco Lab" title="Greco Lab"><svg viewBox="0 0 24 24"><circle cx="6.2" cy="8.5" r="3"/><circle cx="17.8" cy="8.5" r="3"/><circle cx="12" cy="13.8" r="6"/></svg></a>
-            </div>
           </div>
+        </div>
+        <div class="social" aria-label="Contact links">
+          <a href="${J.links.email}" aria-label="Email" title="Email"><svg viewBox="0 0 24 24"><path d="M3 5.5A1.5 1.5 0 0 1 4.5 4h15A1.5 1.5 0 0 1 21 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5v-13zm2 .3v.4l7 4.2 7-4.2v-.4H5zm14 2.56-6.47 3.88a1 1 0 0 1-1.06 0L5 8.36V18h14V8.36z"/></svg></a>
+          <a href="${J.links.github}" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.23c0 4.52 2.87 8.35 6.84 9.71.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.46-1.18-1.11-1.5-1.11-1.5-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.38 9.38 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.8-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.23C22 6.58 17.52 2 12 2z"/></svg></a>
+          <a href="${J.links.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4v11H3v-11zm7 0h3.83v1.5h.05c.53-1 1.84-2.06 3.79-2.06 4.06 0 4.8 2.67 4.8 6.15V20.5h-4v-4.9c0-1.17-.02-2.67-1.63-2.67-1.64 0-1.89 1.28-1.89 2.59V20.5h-4v-11z"/></svg></a>
+          <a href="${J.links.scholar}" target="_blank" rel="noopener" aria-label="Google Scholar" title="Google Scholar"><svg viewBox="0 0 24 24"><path d="M12 2 1 9l4 2.55V17l7 4 7-4v-5.45L19 10.1V16h2V9L12 2zm0 2.3L18.73 9 12 13.27 5.27 9 12 4.3zM7 12.84l5 3.2 5-3.2V16l-5 2.86L7 16v-3.16z"/></svg></a>
+          <a href="${J.links.greco}" target="_blank" rel="noopener" aria-label="Greco Lab" title="Greco Lab"><svg viewBox="0 0 24 24"><circle cx="6.2" cy="8.5" r="3"/><circle cx="17.8" cy="8.5" r="3"/><circle cx="12" cy="13.8" r="6"/></svg></a>
         </div>
       </div>
 
