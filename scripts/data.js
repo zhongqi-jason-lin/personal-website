@@ -41,7 +41,7 @@ window.JASON = {
       title: 'First publication title',
       authors: '<b>Example J</b>, Second A, Third B, Senior C',
       blurb: 'One-sentence summary of the finding, verbatim quote from the abstract, or a significance statement.',
-      teaser: 'organoid',
+      teaser: 'diagram',
       link: 'https://doi.org/10.xxxx/example1',
     },
     {
@@ -49,7 +49,7 @@ window.JASON = {
       title: 'Second publication title',
       authors: 'First A, <b>Example J</b>, Second B, Senior C',
       blurb: 'One-sentence summary of the finding.',
-      teaser: 'follicle',
+      teaser: 'network',
       link: 'https://doi.org/10.xxxx/example2',
     },
     {
@@ -57,7 +57,7 @@ window.JASON = {
       title: 'Third publication title',
       authors: '<b>Example J</b>, Second A, Third B, Senior C',
       blurb: 'One-sentence summary of the finding.',
-      teaser: 'trajectory',
+      teaser: 'curves',
       link: 'https://doi.org/10.xxxx/example3',
     },
   ],

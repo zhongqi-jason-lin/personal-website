@@ -1,6 +1,10 @@
-// Paper-specific cartoon schematics — redesigned as iconic, uncluttered figures.
-// Layout: 200 × 112 viewBox. Diagram top band (y 2–82). Caption strip (y 86–108) only.
+// Abstract cartoon schematics for publication "exhibits".
+// Layout: 200 × 112 viewBox. Diagram top band (y 2–82). Caption strip (y 86–108).
 // Strict rule: NO text inside the diagram region. Only in the caption strip.
+//
+// Three generic schemas that stand in for most paper types — swap or extend as
+// you like. Each key here (diagram / network / curves) is what you reference
+// in scripts/data.js under `pubs[].teaser`.
 window.TEASER = function(kind){
   const caption = (labels) => {
     const n = labels.length;
@@ -20,134 +24,93 @@ window.TEASER = function(kind){
   };
 
   const svgs = {
-    // Nature 2024 — organoid being interrogated by a T cell; IL-7 as a signal wave
-    organoid: `<svg viewBox="0 0 200 112" preserveAspectRatio="xMidYMid meet">
+    // Process diagram — three stages connected by arrows.
+    diagram: `<svg viewBox="0 0 200 112" preserveAspectRatio="xMidYMid meet">
       <g stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Organoid: crypt-like lobed epithelium -->
-        <g transform="translate(70,44)">
-          <path d="M-32 0 Q-34 -18 -22 -26 Q-10 -32 2 -28 Q14 -32 26 -22 Q34 -12 32 4 Q34 18 20 24 Q10 28 -2 26 Q-16 28 -26 20 Q-34 12 -32 0 Z" stroke-width="1.4"/>
-          <!-- crypt buds -->
-          <path d="M-18 -24 Q-20 -32 -14 -34 Q-8 -32 -10 -24" stroke-width="1.1"/>
-          <path d="M10 -28 Q12 -36 18 -34 Q22 -28 18 -24" stroke-width="1.1"/>
-          <path d="M26 16 Q34 20 32 26 Q26 28 22 22" stroke-width="1.1"/>
-          <path d="M-30 8 Q-36 14 -32 20 Q-26 22 -22 16" stroke-width="1.1"/>
-          <!-- lumen lining dots on inner ellipse -->
-          ${Array.from({length:12},(_,i)=>{const a=i/12*Math.PI*2;return `<circle cx="${(Math.cos(a)*16).toFixed(1)}" cy="${(Math.sin(a)*9).toFixed(1)}" r="1.3" fill="currentColor" stroke="none" opacity=".7"/>`}).join('')}
+        <!-- Three rounded boxes -->
+        <rect x="16" y="28" width="44" height="32" rx="4" stroke-width="1.4"/>
+        <rect x="78" y="28" width="44" height="32" rx="4" stroke-width="1.4"/>
+        <rect x="140" y="28" width="44" height="32" rx="4" stroke-width="1.4"/>
+        <!-- Arrows -->
+        <path d="M60 44 L76 44" stroke-width="1.2"/>
+        <polygon points="78,44 73,42 73,46" fill="currentColor" stroke="none"/>
+        <path d="M122 44 L138 44" stroke-width="1.2"/>
+        <polygon points="140,44 135,42 135,46" fill="currentColor" stroke="none"/>
+        <!-- Glyphs inside each box -->
+        <g transform="translate(38,44)">
+          <circle r="2.5" fill="currentColor" stroke="none" opacity=".7"/>
+          <circle cx="-6" r="1.8" fill="currentColor" stroke="none" opacity=".5"/>
+          <circle cx="6" r="1.8" fill="currentColor" stroke="none" opacity=".5"/>
         </g>
-        <!-- IL-7 signal wave (three arcs) -->
-        ${[0,1,2].map(i=>`<path d="M${110+i*3} ${28+i*4} Q${118+i*3} ${44+i*3} ${110+i*3} ${60+i*4}" stroke-width="${1-i*0.2}" opacity="${.8-i*.2}" stroke-dasharray="2 2.5"/>`).join('')}
-        <!-- T cell (right) with surface receptors -->
-        <g transform="translate(158,44)">
-          <circle r="14" stroke-width="1.4"/>
-          <circle r="4" fill="currentColor" stroke="none"/>
-          ${[30,90,150,210,270,330].map(a=>{const r=a*Math.PI/180;const x1=Math.cos(r)*14;const y1=Math.sin(r)*14;const x2=Math.cos(r)*18;const y2=Math.sin(r)*18;return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke-width="1"/><circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="1.3" fill="currentColor" stroke="none"/>`}).join('')}
-        </g>
-      </g>
-      ${caption(['organoid','IL-7','T cell'])}
-    </svg>`,
-
-    // Stem Cell Reports 2023 — bold hair follicle silhouette, a spark (damage), and a sprouting shoot (activation)
-    follicle: `<svg viewBox="0 0 200 112" preserveAspectRatio="xMidYMid meet">
-      <g stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Follicle silhouette, centered, large -->
-        <g transform="translate(76,42)">
-          <!-- skin surface -->
-          <line x1="-44" y1="-28" x2="44" y2="-28" stroke-dasharray="3 3" opacity=".5"/>
-          <!-- hair shafts (3, slightly different lengths) -->
-          <line x1="-10" y1="-28" x2="-10" y2="-42" stroke-width="1.6"/>
-          <line x1="-2" y1="-28" x2="-2" y2="-44" stroke-width="1.6"/>
-          <line x1="6" y1="-28" x2="6" y2="-40" stroke-width="1.6"/>
-          <!-- follicle walls (open-bottomed flask) -->
-          <path d="M-16 -28 Q-20 -12 -22 8 Q-22 28 -8 34 Q8 36 20 30 Q26 20 26 6 Q22 -10 18 -22 Q14 -28 12 -28" stroke-width="1.6"/>
-          <!-- bulge (stem cell niche) -->
-          <ellipse cx="-20" cy="-2" rx="8" ry="6" stroke-width="1.3"/>
-          <!-- stem cells -->
-          <circle cx="-22" cy="-4" r="2" fill="currentColor" stroke="none"/>
-          <circle cx="-18" cy="-3" r="2" fill="currentColor" stroke="none"/>
-          <circle cx="-20" cy="1" r="2" fill="currentColor" stroke="none"/>
-          <!-- dermal papilla -->
-          <ellipse cx="4" cy="30" rx="7" ry="4.5" stroke-width="1.3"/>
-        </g>
-        <!-- Spark (DNA damage) — 6-point star -->
-        <g transform="translate(30,28)" stroke-width="1.2">
-          ${[0,60,120,180,240,300].map(a=>{const r=a*Math.PI/180;const x=Math.cos(r)*7;const y=Math.sin(r)*7;return `<line x1="0" y1="0" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`}).join('')}
+        <g transform="translate(100,44)">
+          <circle r="5" stroke-width="1.1"/>
           <circle r="1.8" fill="currentColor" stroke="none"/>
         </g>
-        <!-- Sprouting shoot (activation / regeneration) -->
-        <g transform="translate(160,56)" stroke-width="1.3">
-          <path d="M0 24 Q0 8 -6 0"/>
-          <path d="M0 24 Q0 8 6 0"/>
-          <path d="M0 12 Q-8 6 -12 -4"/>
-          <path d="M0 8 Q8 2 12 -8"/>
-          <!-- new leaf tips as small circles -->
-          <circle cx="-12" cy="-4" r="2" fill="currentColor" stroke="none"/>
-          <circle cx="12" cy="-8" r="2" fill="currentColor" stroke="none"/>
-          <circle cx="-6" cy="0" r="1.5" fill="currentColor" stroke="none"/>
-          <circle cx="6" cy="0" r="1.5" fill="currentColor" stroke="none"/>
+        <g transform="translate(162,44)">
+          <rect x="-6" y="-4" width="12" height="8" stroke-width="1.1" rx="1"/>
+          <line x1="-3" y1="0" x2="3" y2="0" stroke-width=".9"/>
         </g>
       </g>
-      ${caption(['DNA damage','follicle','activation'])}
+      ${caption(['input','process','output'])}
     </svg>`,
 
-    // Nat Comm 2020 — gradualistic differentiation as a curved funnel + GRHL3 "gate" as a doorway at the bottleneck
-    trajectory: `<svg viewBox="0 0 200 112" preserveAspectRatio="xMidYMid meet">
+    // Network — nodes of varying weight connected by edges, one visual hub.
+    network: `<svg viewBox="0 0 200 112" preserveAspectRatio="xMidYMid meet">
       <g stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Wide funnel, left to right, narrow at middle -->
-        <path d="M14 14 Q70 14 92 36 Q100 42 92 48 Q70 70 14 70" stroke-width="1.3" opacity=".75"/>
-        <path d="M14 70 Q60 70 88 48" stroke-width="0"/>
-        <!-- basal stem cells (left, many, dense, filled) -->
-        ${[[20,22],[28,18],[36,24],[22,32],[32,32],[42,18],[26,42],[38,42],[48,30],[20,50],[30,52],[44,50],[20,62],[32,62],[44,60]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.4" fill="currentColor" stroke="none" opacity=".9"/>`).join('')}
-        <!-- transition cells (middle, outlined) -->
-        ${[[58,28],[66,22],[72,30],[60,42],[68,42],[74,40],[58,54],[66,48],[72,54]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3" stroke-width=".9" opacity=".8"/>`).join('')}
-        <!-- GRHL3 gate (bottleneck) -->
-        <rect x="96" y="30" width="8" height="24" stroke-width="1.4" fill="var(--paper-2)"/>
-        <line x1="100" y1="30" x2="100" y2="54" stroke-width="1.4"/>
-        <!-- gate pillars -->
-        <circle cx="100" cy="26" r="2" fill="currentColor" stroke="none"/>
-        <circle cx="100" cy="58" r="2" fill="currentColor" stroke="none"/>
-        <!-- Past the gate: differentiated cells (flat ellipses, then strips) -->
-        ${[[118,28],[132,28],[146,28]].map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="6" ry="2.4" stroke-width=".9" opacity=".7"/>`).join('')}
-        ${[[120,44],[138,44],[156,44]].map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="7" ry="2.2" stroke-width=".8" opacity=".6"/>`).join('')}
-        ${[[122,60],[140,60],[158,60],[176,60]].map(([x,y])=>`<rect x="${x-6}" y="${y-1.5}" width="12" height="3" stroke-width=".6" opacity=".5"/>`).join('')}
-        <!-- trajectory arrow, very clean, bottom -->
-        <path d="M16 78 L184 78" stroke-width="1"/>
-        <polygon points="184,78 179,75 179,81" fill="currentColor" stroke="none"/>
+        <!-- Edges (drawn first so nodes overlap them) -->
+        <g stroke-width=".9" opacity=".55">
+          <line x1="40" y1="22" x2="100" y2="44"/>
+          <line x1="40" y1="22" x2="60" y2="60"/>
+          <line x1="100" y1="44" x2="60" y2="60"/>
+          <line x1="100" y1="44" x2="150" y2="26"/>
+          <line x1="100" y1="44" x2="158" y2="60"/>
+          <line x1="150" y1="26" x2="158" y2="60"/>
+          <line x1="60" y1="60" x2="88" y2="74"/>
+          <line x1="158" y1="60" x2="136" y2="74"/>
+          <line x1="88" y1="74" x2="136" y2="74"/>
+        </g>
+        <!-- Nodes -->
+        <circle cx="40" cy="22" r="4" fill="currentColor" stroke="none"/>
+        <circle cx="100" cy="44" r="6.5" fill="currentColor" stroke="none"/>
+        <circle cx="60" cy="60" r="4" fill="currentColor" stroke="none"/>
+        <circle cx="150" cy="26" r="4" fill="currentColor" stroke="none"/>
+        <circle cx="158" cy="60" r="5" fill="currentColor" stroke="none"/>
+        <circle cx="88" cy="74" r="3" fill="currentColor" stroke="none" opacity=".75"/>
+        <circle cx="136" cy="74" r="3" fill="currentColor" stroke="none" opacity=".75"/>
+        <!-- Ring around the hub -->
+        <circle cx="100" cy="44" r="10" stroke-width=".7" stroke-dasharray="2 2.5" opacity=".55"/>
       </g>
-      ${caption(['basal stem cells','differentiation'])}
+      ${caption(['node','hub','edge'])}
     </svg>`,
 
-    // Lung + SARS-CoV-2 — a stylized lung (two lobes as bubble clusters), a virus, and a T cell
-    lung: `<svg viewBox="0 0 200 112" preserveAspectRatio="xMidYMid meet">
+    // Curves — axes, gridlines, two smooth curves with data points on the top one.
+    curves: `<svg viewBox="0 0 200 112" preserveAspectRatio="xMidYMid meet">
       <g stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Trachea / airway tree -->
-        <path d="M100 6 L100 28" stroke-width="1.6"/>
-        <path d="M100 28 Q84 36 68 44 Q60 50 56 56" stroke-width="1.3"/>
-        <path d="M100 28 Q116 36 132 44 Q140 50 144 56" stroke-width="1.3"/>
-        <!-- Left lobe (bubble cluster) -->
-        <g transform="translate(58,60)">
-          ${[[0,0],[-10,4],[10,2],[-6,12],[8,14],[-14,18],[0,22],[14,22]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" stroke-width="1.2"/>`).join('')}
-        </g>
-        <!-- Right lobe -->
-        <g transform="translate(142,60)">
-          ${[[0,0],[10,4],[-10,2],[6,12],[-8,14],[14,18],[0,22],[-14,22]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" stroke-width="1.2"/>`).join('')}
-        </g>
-        <!-- SARS-CoV-2 virion in middle, large and iconic -->
-        <g transform="translate(100,60)">
-          <circle r="7" fill="currentColor" stroke="none" opacity=".9"/>
-          ${Array.from({length:10},(_,i)=>{const a=i/10*Math.PI*2;const x1=Math.cos(a)*7;const y1=Math.sin(a)*7;const x2=Math.cos(a)*11;const y2=Math.sin(a)*11;return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke-width="1"/><circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="1.6" fill="currentColor" stroke="none"/>`}).join('')}
-        </g>
-        <!-- T cell upper left, small & iconic -->
-        <g transform="translate(24,24)">
-          <circle r="9" stroke-width="1.3"/>
-          <circle r="3" fill="currentColor" stroke="none"/>
-          ${[0,72,144,216,288].map(a=>{const r=a*Math.PI/180;const x1=Math.cos(r)*9;const y1=Math.sin(r)*9;const x2=Math.cos(r)*12;const y2=Math.sin(r)*12;return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke-width="1"/>`}).join('')}
-        </g>
-        <!-- arrow from T cell to virus -->
-        <path d="M34 30 Q62 44 86 56" stroke-dasharray="2 2.5" stroke-width="1"/>
-        <polygon points="86,56 80,54 82,60" fill="currentColor" stroke="none"/>
+        <!-- Axes -->
+        <line x1="22" y1="74" x2="184" y2="74" stroke-width="1"/>
+        <line x1="22" y1="10" x2="22" y2="74" stroke-width="1"/>
+        <!-- Gridlines -->
+        <line x1="22" y1="58" x2="184" y2="58" stroke-width=".3" stroke-dasharray="2 3" opacity=".4"/>
+        <line x1="22" y1="42" x2="184" y2="42" stroke-width=".3" stroke-dasharray="2 3" opacity=".4"/>
+        <line x1="22" y1="26" x2="184" y2="26" stroke-width=".3" stroke-dasharray="2 3" opacity=".4"/>
+        <!-- Primary curve -->
+        <path d="M24 68 Q68 62 100 46 Q132 30 182 20" stroke-width="1.6"/>
+        <!-- Secondary (dashed) curve -->
+        <path d="M24 72 Q64 68 100 58 Q138 48 182 40" stroke-width="1.2" opacity=".65" stroke-dasharray="3 2"/>
+        <!-- Data points on primary curve -->
+        <circle cx="42" cy="64" r="2" fill="currentColor" stroke="none"/>
+        <circle cx="80" cy="50" r="2" fill="currentColor" stroke="none"/>
+        <circle cx="120" cy="38" r="2" fill="currentColor" stroke="none"/>
+        <circle cx="160" cy="26" r="2" fill="currentColor" stroke="none"/>
+        <!-- Tiny axis tick marks -->
+        <line x1="22" y1="74" x2="22" y2="78" stroke-width=".7"/>
+        <line x1="60" y1="74" x2="60" y2="76" stroke-width=".5"/>
+        <line x1="100" y1="74" x2="100" y2="76" stroke-width=".5"/>
+        <line x1="140" y1="74" x2="140" y2="76" stroke-width=".5"/>
+        <line x1="184" y1="74" x2="184" y2="78" stroke-width=".7"/>
       </g>
-      ${caption(['T cell','virion','alveoli'])}
+      ${caption(['x','signal','y'])}
     </svg>`,
   };
-  return svgs[kind] || svgs.organoid;
+  return svgs[kind] || svgs.diagram;
 };

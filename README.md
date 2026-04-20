@@ -13,9 +13,12 @@ One live example deployed from this template: **[zhongqilin.org](https://zhongqi
   - `GET /api/visits` — per-city visit counts, used by the in-page world map
   - `GET /api/cv-stats` — total CV downloads and per-country breakdown
 - **Workers KV** storage for the counters, with 24h IP-hash dedup and bot filtering.
+- **Watercolor-style visitor map** — a Pacific-centered world map drawn as hand-plotted polygon outlines, with visitor cities rendered as soft blue blooms via SVG + CSS `mix-blend-mode`. No tile-server dependency, no external map library. See it in action below.
 - **SF-family typography** via the system font stack — no webfonts downloaded, fast first paint.
 - **Light/dark theme toggle** with View Transitions API and CSS fallback.
 - **Mobile optimized** — dynamic viewport height, safe-area insets, dedicated breakpoint at ≤640 px.
+
+![Watercolor-style visitor map](assets/map.png)
 
 ## Quick start
 
