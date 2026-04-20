@@ -139,27 +139,40 @@
     { c:'Nairobi',       co:'Kenya',  lat:-1.29,  lon:36.82,  w:0.14, n:8   },
   ];
 
+  // Normalize a city record into the {lat, lon, w, n, label} shape used for rendering.
+  // `w` is a 0–1 weight derived from count, relative to the max in the set.
+  const normalize = (cities) => {
+    if (!cities || !cities.length) return [];
+    const max = Math.max(...cities.map((c) => c.count || 0), 1);
+    return cities.map((c) => ({
+      lat: c.lat,
+      lon: c.lon,
+      n: c.count,
+      label: `${c.city}, ${c.country}`,
+      w: Math.max(0.12, Math.min(1, (c.count || 1) / max)),
+    }));
+  };
+
+  const renderPools = (cities) => cities.map((ct) => {
+    const [x, y] = proj(ct.lon, ct.lat);
+    const r  = (6 + ct.w * 11).toFixed(1);
+    const op = (0.28 + ct.w * 0.38).toFixed(2);
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" opacity="${op}"><title>${ct.label} — ${ct.n} visit${ct.n === 1 ? '' : 's'}</title></circle>`;
+  }).join('');
+
+  const renderBloom = (cities) => [...cities].sort((a, b) => b.w - a.w).slice(0, 5).map((ct) => {
+    const [x, y] = proj(ct.lon, ct.lat);
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(12 + ct.w * 14).toFixed(1)}" opacity=".28"/>`;
+  }).join('');
+
+  // Initial seed — used until /api/visits returns. Same shape as normalize() output.
+  const SEED = CITIES.map((c) => ({ lat: c.lat, lon: c.lon, n: c.n, label: `${c.c}, ${c.co}`, w: c.w }));
+
   window.VMAP = function(){
     // Each LAND path is re-projected point-by-point through proj(), so continents
     // and city dots live in the exact same coordinate space. No tiling needed.
     const landWrapped = LAND.map(d=>`<path class="land" d="${reprojectPath(d)}"/>`).join('');
-
-    // Watercolor pools — soft, impressionistic. Two passes of Gaussian blur stacked.
-    // No crisp cores; clusters bleed into each other like wet pigment on paper.
-    const pools = CITIES.map(ct=>{
-      const [x,y]=proj(ct.lon, ct.lat);
-      const r  = (6 + ct.w * 11).toFixed(1);
-      const op = (0.28 + ct.w * 0.38).toFixed(2);
-      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" opacity="${op}"><title>${ct.c}, ${ct.co} — ${ct.n} visits</title></circle>`;
-    }).join('');
-
-    // Soft bloom behind the top cities — the "wet edge" of an overfilled brush.
-    const bloom = [...CITIES].sort((a,b)=>b.w-a.w).slice(0,5).map(ct=>{
-      const [x,y]=proj(ct.lon, ct.lat);
-      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(12+ct.w*14).toFixed(1)}" opacity=".28"/>`;
-    }).join('');
-
-    return `<div class="vmap"><svg viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Visitors world map">
+    return `<div class="vmap" data-seeded="true"><svg viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Visitors world map">
       <defs>
         <filter id="vmap-bleed" x="-10%" y="-10%" width="120%" height="120%">
           <feGaussianBlur stdDeviation="4.5"/>
@@ -170,13 +183,43 @@
       </defs>
       <path class="grat" d="${gratLines()}"/>
       ${landWrapped}
-      <g class="bloom" filter="url(#vmap-bloom)">${bloom}</g>
-      <g class="pools" filter="url(#vmap-bleed)">${pools}</g>
+      <g class="bloom" filter="url(#vmap-bloom)">${renderBloom(SEED)}</g>
+      <g class="pools" filter="url(#vmap-bleed)">${renderPools(SEED)}</g>
     </svg></div>`;
   };
 
+  // Fetch live visit data from /api/visits and re-render just the dot layers.
+  // Fails silently on network / parse errors — the seeded map stays visible.
+  window.VMAP_REFRESH = async function(){
+    try{
+      const r = await fetch('/api/visits', { cache: 'no-store' });
+      if(!r.ok) return;
+      const { cities } = await r.json();
+      if(!cities || !cities.length) return;  // empty KV → keep seeded dots
+      const real = normalize(cities);
+      const root = document.querySelector('.vmap[data-seeded]');
+      if(!root) return;
+      const poolsG = root.querySelector('.pools');
+      const bloomG = root.querySelector('.bloom');
+      if(poolsG) poolsG.innerHTML = renderPools(real);
+      if(bloomG) bloomG.innerHTML = renderBloom(real);
+      root.removeAttribute('data-seeded');
+      root.setAttribute('data-live', 'true');
+      // Also refresh the top-cities table if it's on the page.
+      const tableHost = document.querySelector('[data-vcity-host]');
+      if(tableHost){
+        const sorted = [...cities].sort((a,b)=>(b.count||0)-(a.count||0)).slice(0,8);
+        tableHost.innerHTML = sorted.map((c,i)=>`<div class="vcity">
+          <span class="cn">${String(i+1).padStart(2,'0')}</span>
+          <span class="c">${c.city}</span>
+          <span class="p">${c.country} · ${c.count}</span>
+        </div>`).join('');
+      }
+    }catch(e){ /* ignore — seeded view is fine */ }
+  };
+
   window.VCITIES = function(){
-    // Top 8 cities for the table
+    // Top 8 cities for the table — seeded; VMAP_REFRESH() swaps in live data when available.
     const top = [...CITIES].sort((a,b)=>b.n-a.n).slice(0,8);
     return top.map((ct,i)=>`<div class="vcity">
       <span class="cn">${String(i+1).padStart(2,'0')}</span>

@@ -13,16 +13,16 @@
   .vF .plate .who{display:grid;grid-template-columns:auto 1fr;gap:1.75rem;align-items:stretch}
   .vF .plate .who-text{display:flex;flex-direction:column;min-height:128px}
   .vF .plate .pic{width:128px;height:128px;border-radius:50%;background:url('${window.__resources?window.__resources.headshot:"assets/headshot.jpg"}') center/cover,var(--paper);box-shadow:0 14px 30px -16px rgba(0,0,0,.3),0 0 0 5px var(--paper),0 0 0 6px var(--ink)}
-  .vF .plate h1{font-family:var(--serif);font-weight:400;font-size:clamp(32px,3.4vw,44px);line-height:1;letter-spacing:-.02em;margin:0 0 .35rem}
-  .vF .plate h1 em{font-style:italic;color:var(--accent)}
+  .vF .plate h1{font-family:var(--serif);font-weight:600;font-size:clamp(32px,3.4vw,44px);line-height:1.05;letter-spacing:-.025em;margin:0 0 .35rem}
+  .vF .plate h1 em{font-style:normal;color:var(--accent);font-weight:400}
   .vF .plate .role{font-family:var(--mono);font-size:14.5px;letter-spacing:.06em;color:var(--ink-soft);line-height:1.5}
   .vF .plate .role b{color:var(--ink);font-weight:500}
 
   .vF .plate .subject{margin:0 -2.25rem -1rem;padding:2.25rem 2.25rem .75rem;border-top:1px solid var(--ink);display:flex;align-items:center;justify-content:center}
   .vF .plate .subject .triad{font-family:var(--serif);display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:.4rem .7rem;line-height:1.15}
-  .vF .plate .subject .triad .r{font-size:clamp(17px,1.9vw,22px);font-weight:400;letter-spacing:-.005em;color:var(--ink);white-space:nowrap}
-  .vF .plate .subject .triad .r em{font-style:italic;color:var(--accent)}
-  .vF .plate .subject .triad .op{font-family:var(--serif);font-style:italic;font-size:clamp(16px,1.7vw,20px);color:var(--accent);opacity:.85}
+  .vF .plate .subject .triad .r{font-size:clamp(17px,1.9vw,22px);font-weight:500;letter-spacing:-.015em;color:var(--ink);white-space:nowrap}
+  .vF .plate .subject .triad .r em{font-style:normal;color:var(--accent);font-weight:600}
+  .vF .plate .subject .triad .op{font-family:var(--serif);font-style:normal;font-weight:300;font-size:clamp(16px,1.7vw,20px);color:var(--accent);opacity:.85}
 
   /* Social links row — left-aligned with the role text, pinned to bottom of column */
   .vF .plate .social{display:flex;gap:.3rem;align-items:center;justify-content:flex-start;margin-top:auto;padding-top:.5rem}
@@ -31,8 +31,8 @@
   .vF .plate .social a svg{width:14px;height:14px;fill:currentColor}
 
   /* Bio block (new, above provenance) */
-  .vF .plate .bio{font-family:var(--serif);font-size:17.5px;line-height:1.55;color:var(--ink);border-left:3px solid var(--accent);padding:.25rem 0 .25rem 1rem}
-  .vF .plate .bio b{color:var(--accent);font-weight:400;font-style:italic}
+  .vF .plate .bio{font-family:var(--serif);font-size:18.5px;line-height:1.55;color:var(--ink);border-left:3px solid var(--accent);padding:.25rem 0 .25rem 1rem;font-weight:400;letter-spacing:-.005em}
+  .vF .plate .bio b{color:var(--accent);font-weight:600;font-style:normal}
 
   .vF .plate .block h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 .8rem;font-weight:500;display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
   .vF .plate .block h3 .cv-link{color:var(--ink-soft);font:inherit;letter-spacing:inherit;text-transform:inherit;border-bottom:1px solid transparent;padding-bottom:2px;transition:color .15s,border-color .15s}
@@ -41,8 +41,8 @@
   .vF .plate .row{display:grid;grid-template-columns:120px 1fr;gap:.9rem;padding:.65rem 0;border-top:1px dashed var(--rule);align-items:baseline}
   .vF .plate .row:first-child{border-top:0}
   .vF .plate .row .y{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);letter-spacing:.04em;padding-top:.15rem}
-  .vF .plate .row .w b{font-family:var(--serif);font-weight:400;font-size:17px;line-height:1.2;color:var(--ink);letter-spacing:-.005em}
-  .vF .plate .row .w em{font-style:italic;color:var(--ink-faint);font-size:14px;display:block;margin-top:.2rem;font-family:var(--serif);letter-spacing:-.005em;line-height:1.3}
+  .vF .plate .row .w b{font-family:var(--serif);font-weight:500;font-size:16.5px;line-height:1.25;color:var(--ink);letter-spacing:-.01em}
+  .vF .plate .row .w em{font-style:normal;color:var(--ink-faint);font-size:13.5px;display:block;margin-top:.2rem;font-family:var(--serif);letter-spacing:-.005em;line-height:1.35}
 
   .vF .plate .contact{margin:auto -2.25rem 0;padding:1.25rem 2.25rem 0;border-top:1px solid var(--ink);font-family:var(--mono);font-size:12px;color:var(--ink-soft);letter-spacing:.04em;line-height:1.7;min-height:4.5rem;display:flex;flex-direction:column;justify-content:flex-start}
   .vF .plate .contact a{color:var(--ink)}
@@ -52,12 +52,12 @@
   .vF .plate .skill{padding:.95rem .75rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:.4rem;min-height:68px}
   .vF .plate .skill:nth-child(2n){border-right:0}
   .vF .plate .skill .n{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink-faint)}
-  .vF .plate .skill .t{font-family:var(--serif);font-size:17px;line-height:1.25;letter-spacing:-.005em;color:var(--ink)}
+  .vF .plate .skill .t{font-family:var(--serif);font-size:15.5px;line-height:1.3;letter-spacing:-.01em;color:var(--ink);font-weight:500}
 
   /* Right hall */
   .vF .hall{padding:2.5rem 2.5rem 3rem;display:flex;flex-direction:column}
-  .vF .hall .intro{max-width:58ch;margin:0 0 2.5rem;font-family:var(--serif);font-size:20px;line-height:1.45;color:var(--ink)}
-  .vF .hall .intro b{color:var(--accent);font-weight:400;font-style:italic}
+  .vF .hall .intro{max-width:58ch;margin:0 0 2.5rem;font-family:var(--serif);font-size:20px;line-height:1.5;color:var(--ink);font-weight:400}
+  .vF .hall .intro b{color:var(--accent);font-weight:600;font-style:normal}
 
   .vF .section-head{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 1.75rem;font-weight:500;display:flex;justify-content:space-between;align-items:baseline}
   .vF .section-head span{color:var(--ink-faint)}
@@ -65,18 +65,18 @@
   .vF .exhibit{margin:0 -2.5rem;padding:1.5rem 2.5rem;border-top:1px solid var(--rule);display:grid;grid-template-columns:64px 1fr;gap:1.25rem}
   .vF .exhibit:first-of-type{border-top:2px solid var(--ink)}
   .vF .exhibit .no{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--ink-faint)}
-  .vF .exhibit .no b{display:block;font-size:34px;letter-spacing:-.02em;color:var(--ink);margin-top:.2rem;font-family:var(--serif);font-weight:400}
+  .vF .exhibit .no b{display:block;font-size:34px;letter-spacing:-.03em;color:var(--ink);margin-top:.2rem;font-family:var(--serif);font-weight:600}
   .vF .spec{display:grid;grid-template-columns:minmax(260px,1.1fr) 1fr;gap:1.5rem;align-items:start}
   @media(max-width:960px){.vF .spec{grid-template-columns:1fr}}
   .vF .spec .tsr{aspect-ratio:4/3;background:var(--paper-2);color:var(--accent);border:1px solid var(--rule);position:relative;overflow:hidden}
   .vF .spec .tsr svg{position:absolute;inset:0;width:100%;height:100%}
-  .vF .spec h3{font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.2;letter-spacing:-.01em;margin:0 0 .5rem}
+  .vF .spec h3{font-family:var(--serif);font-weight:500;font-size:24px;line-height:1.25;letter-spacing:-.02em;margin:0 0 .5rem}
   .vF .spec h3 a{color:var(--ink);text-decoration:none;background-image:linear-gradient(var(--accent),var(--accent));background-repeat:no-repeat;background-size:0 1px;background-position:0 100%;transition:background-size .25s ease,color .15s}
   .vF .spec h3 a:hover{color:var(--accent);background-size:100% 1px;opacity:1}
   .vF .spec h3 a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
   .vF .spec .m{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--ink-faint);margin-bottom:.5rem}
   .vF .spec .m b{color:var(--accent);font-weight:500}
-  .vF .spec p{font-family:var(--serif);font-size:16.5px;line-height:1.5;color:var(--ink-soft);margin:0 0 .75rem;font-style:italic}
+  .vF .spec p{font-family:var(--serif);font-size:16px;line-height:1.55;color:var(--ink-soft);margin:0 0 .75rem;font-style:normal;font-weight:400}
   .vF .spec p::before{content:"“";color:var(--accent)}
   .vF .spec p::after{content:"”";color:var(--accent)}
   .vF .spec .au{font-size:13.5px;color:var(--ink-faint);line-height:1.5}
@@ -101,7 +101,7 @@
   .vF .vcity{padding:.7rem .7rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:.25rem}
   .vF .vcity:nth-child(4n){border-right:0}
   .vF .vcity .cn{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-faint)}
-  .vF .vcity .c{font-family:var(--serif);font-size:14.5px;color:var(--ink);line-height:1.1;letter-spacing:-.005em}
+  .vF .vcity .c{font-family:var(--serif);font-size:14.5px;color:var(--ink);line-height:1.2;letter-spacing:-.01em;font-weight:500}
   .vF .vcity .p{font-family:var(--mono);font-size:10.5px;color:var(--accent);letter-spacing:.04em}
   @media(max-width:720px){.vF .vtable{grid-template-columns:repeat(2,1fr)}.vF .vcity:nth-child(4n){border-right:1px solid var(--rule)}.vF .vcity:nth-child(2n){border-right:0}}
 
@@ -141,7 +141,10 @@
   const skills = J.skills.map((s,i)=>`<div class="skill"><span class="n">S.${String(i+1).padStart(2,'0')}</span><span class="t">${s}</span></div>`).join('');
 
   // Bio highlight for the left block
-  const bioHtml = J.bio.replace('skin regenerates','<b>skin regenerates</b>').replace('transcription dynamics','<b>transcription dynamics</b>');
+  const bioHtml = J.bio
+    .replace('transcription dynamics','<b>transcription dynamics</b>')
+    .replace('cellular behaviors','<b>cellular behaviors</b>')
+    .replace('tissue architecture','<b>tissue architecture</b>');
 
   root.innerHTML=`<style>${css}</style><div class="vF"><div class="stage">
     <div class="plate">
@@ -206,4 +209,10 @@
 
     </div>
   </div></div>`;
+
+  // Swap seeded mock visitors for live /api/visits data once the DOM is attached.
+  // No-ops cleanly if the API isn't available (local file:// preview, or before KV is wired up).
+  if (typeof window.VMAP_REFRESH === 'function') {
+    requestAnimationFrame(() => window.VMAP_REFRESH());
+  }
 })();

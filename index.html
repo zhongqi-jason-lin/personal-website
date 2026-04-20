@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Zhongqi "Jason" Lin</title>
 <meta name="description" content="Zhongqi &quot;Jason&quot; Lin — PhD Candidate in Genetics, Greco Lab, Yale University. Live imaging of skin stem cells in mice."/>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- All typography is Apple's SF family, resolved via the system font stack — no webfont download. -->
 <script>
   // Set user's saved theme before first paint (prevents flash).
   (function(){
@@ -19,9 +17,13 @@
 </script>
 <style>
   :root{
+    /* SF theme: all three roles resolve to Apple's SF family via the system stack.
+       --sf: body/UI (SF Pro Text at small sizes, SF Pro Display at large sizes — browser picks via optical sizing).
+       --display: same stack, used where we want heavier weight / tighter tracking for headings.
+       --mono: SF Mono on macOS, falls back to Menlo/Consolas elsewhere. */
     --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",system-ui,sans-serif;
-    --serif:"Instrument Serif",Georgia,serif;
-    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --serif:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",system-ui,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
     --paper:#fafaf8; --paper-2:#f0efe9; --ink:#111; --ink-soft:#555; --ink-faint:#888; --rule:#e5e3dc;
     --accent:oklch(0.72 0.12 205); --accent-soft:oklch(0.72 0.12 205 / 0.15);
   }
@@ -34,7 +36,7 @@
   :root[data-theme="dark"]{--paper:#0f0f10;--paper-2:#1a1a1c;--ink:#f4f3ef;--ink-soft:#b5b2aa;--ink-faint:#7a776f;--rule:#2a2a2c;}
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
-  body{background:var(--paper);color:var(--ink);font-family:var(--sf);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sf);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:-.01em;font-optical-sizing:auto}
   /* Fallback crossfade for browsers without View Transitions API (Safari <18, older FF).
      Includes SVG primitives so the map's stroke colors fade in sync with the surrounding DOM. */
   body,body *{transition:background-color .35s ease,color .35s ease,border-color .35s ease,fill .35s ease,stroke .35s ease,box-shadow .35s ease,opacity .35s ease}
