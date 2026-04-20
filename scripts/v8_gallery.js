@@ -327,13 +327,13 @@
     /* Chevron sits at the right edge of the h3. Rotates through a "+" ↔ "−"
        content swap rather than a transform, so the glyph itself changes
        character — more legible than a rotated plus at small sizes. */
-    /* Keep h3 flex children vertically centered on mobile so the circular
-       chevron sits on the same visual axis as the text / CV link — the
-       desktop "baseline" alignment reads as "slightly off" with a badge
-       glyph next to a lowercase label. */
-    .vF .plate .block[data-collapsible] > h3{align-items:center}
-    .vF .plate .block[data-collapsible] .h-actions{display:inline-flex;align-items:center;gap:.75rem}
-    .vF .plate .block[data-collapsible] .chevron{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:1px solid var(--rule);border-radius:50%;font-family:var(--mono);font-size:13px;line-height:1;color:var(--ink-soft);font-weight:400;margin-left:.5rem;flex-shrink:0}
+    /* Chevron: plain mono glyph, same family/weight as the heading so it
+       reads as typography rather than a button badge. Keeping baseline
+       alignment on the h3 (desktop behavior) — centering flex items shifted
+       the "Provenance"/CV-link baseline relative to the rest of the plate
+       and read as a font-rendering glitch. */
+    .vF .plate .block[data-collapsible] .h-actions{display:inline-flex;align-items:baseline;gap:.75rem}
+    .vF .plate .block[data-collapsible] .chevron{display:inline-block;font-family:var(--mono);font-size:13px;line-height:1;color:var(--ink-soft);font-weight:500;margin-left:.4rem;letter-spacing:0}
     .vF .plate .block[data-collapsible] .chevron::before{content:"+"}
     .vF .plate .block[data-collapsible][data-open="true"] .chevron::before{content:"−"}
     /* Collapsible rows/skills currently carry a top-border + 2.25rem of padding
@@ -355,6 +355,18 @@
     .vF .spec .tsr{cursor:pointer;-webkit-tap-highlight-color:transparent}
     .vF .spec .tsr:active{opacity:.92}
     .vF .spec .tsr svg g[fill="none"]{stroke-width:1.2}
+  }
+
+  /* Disable automatic hyphenation on mobile body text. The justified desktop
+     layout uses hyphens:auto to avoid rivers, but mobile switches those same
+     paragraphs to text-align:left (at the 1000px / 640px breakpoints), which
+     doesn't need hyphens — and auto-hyphenation there produces awkward mid-
+     word breaks like "tis-sue architecture", "di-verse immune", "gluten-de-
+     pendent", "princi-ple". Left-aligned ragged-right is the right look. */
+  @media (max-width:900px){
+    .vF .plate .bio,
+    .vF .hall .intro,
+    .vF .spec p{hyphens:manual;-webkit-hyphens:manual}
   }
 
   /* Ultra-small screens (≤380px): shave horizontal padding so nothing feels cramped. */
@@ -439,7 +451,7 @@
 
       <div class="bio" data-rise style="--d:240ms">${bioHtml}</div>
 
-      <div class="block" data-collapsible>
+      <div class="block" data-collapsible data-open="true">
         <h3>Provenance <span class="h-actions"><a class="cv-link" href="${J.links.cv}" download aria-label="Download CV">CV ↓</a><span class="chevron" aria-hidden="true"></span></span></h3>
         <div class="block-body"><div class="rows">${prov}</div></div>
       </div>
