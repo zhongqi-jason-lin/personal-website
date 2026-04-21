@@ -144,11 +144,19 @@ function etDateMinusDays(n) {
 // prefix, reject ones older than `cutoff`, then fan out gets in parallel.
 // Both counter families use keys shaped "stats:<fam>:<date>:<field>", so the
 // date lives at segment index 2 and the field at 3.
+// Also returns the earliest date seen across *all* keys (not just post-cutoff)
+// so the caller can tell how much history the counter has. Used to decide
+// when the counter has been running long enough to trust over cumulative.
 async function sumDailyByField(env, prefix, cutoff) {
   const sums = new Map();
+  let minDate = null;
   let cursor;
   do {
     const page = await env.VISITS.list({ prefix, cursor });
+    for (const k of page.keys) {
+      const d = k.name.split(':')[2];
+      if (d && (!minDate || d < minDate)) minDate = d;
+    }
     const fresh = page.keys.filter((k) => {
       const segs = k.name.split(':');
       return segs[2] && segs[2] >= cutoff;
@@ -164,61 +172,69 @@ async function sumDailyByField(env, prefix, cutoff) {
     }
     cursor = page.list_complete ? null : page.cursor;
   } while (cursor);
-  return sums;
+  return { sums, minDate };
 }
 
 // Build the /api/stats payload. Days-on-view + two 30-day rankings:
-// Top Countries (by visit count) and Top cities in US. During the cold-start
-// window right after this Worker rolls out, daily counters are sparse, so
-// both rankings fall back to the cumulative per-city records.
+// Top Countries (by visit count) and Top US States. Until the daily counter
+// has 30 days of history (the counter feature deployed AFTER the site
+// launched), both rankings fall back to cumulative per-city records, which
+// cover the full site lifespan. Warmup is decided per-family from the
+// earliest date in its own key set — no sentinel KV key needed, and TTL
+// rotation (60d) keeps the derived start date meaningful indefinitely.
 async function getStats(env) {
   const cutoff = etDateMinusDays(29);   // 30 days inclusive of today
-  const [ccSums, stateSums, cities] = await Promise.all([
+  const [ccResult, stateResult, cities] = await Promise.all([
     sumDailyByField(env, 'stats:cc:', cutoff),
     sumDailyByField(env, 'stats:usstate:', cutoff),
     getVisits(env),
   ]);
+  const { sums: ccSums, minDate: ccMinDate } = ccResult;
+  const { sums: stateSums, minDate: stateMinDate } = stateResult;
 
-  // Daily counters only contain history from after their rollout, so during
-  // the first ~30 days of the site (or any time the daily list has fewer
-  // than 3 entries) we defer to cumulative records — which are a strict
-  // superset while the site is younger than the 30-day window anyway.
-  const topFromDaily = [...ccSums.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([cc]) => cc);
-  let topCountries = topFromDaily;
-  if (topCountries.length < 3) {
+  // Counter is "warmed up" once its earliest key is at or before the cutoff —
+  // i.e., it has keys covering the full 30-day window. Before that, cumulative
+  // is both more honest and a strict superset of whatever the counter has.
+  const ccWarmed = ccMinDate && ccMinDate <= cutoff;
+  const stateWarmed = stateMinDate && stateMinDate <= cutoff;
+
+  let topCountries;
+  if (ccWarmed) {
+    topCountries = [...ccSums.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([cc]) => cc);
+  } else {
     const byCountry = new Map();
     for (const c of cities) {
       if (!c.country) continue;
       byCountry.set(c.country, (byCountry.get(c.country) || 0) + (c.count || 0));
     }
-    const cumulativeTop = [...byCountry.entries()]
+    topCountries = [...byCountry.entries()]
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3)
       .map(([cc]) => cc);
-    if (cumulativeTop.length > topCountries.length) topCountries = cumulativeTop;
   }
 
-  const topSlugs = [...stateSums.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
-    .map(([slug]) => slug);
-  let topUsStates = await Promise.all(topSlugs.map(async (slug) =>
-    (await env.VISITS.get('stats:statename:' + slug)) || slug
-  ));
-  if (topUsStates.length < 3) {
+  let topUsStates;
+  if (stateWarmed) {
+    const topSlugs = [...stateSums.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([slug]) => slug);
+    topUsStates = await Promise.all(topSlugs.map(async (slug) =>
+      (await env.VISITS.get('stats:statename:' + slug)) || slug
+    ));
+  } else {
     const byState = new Map();
     for (const c of cities) {
       if (c.country !== 'US' || !c.region) continue;
       byState.set(c.region, (byState.get(c.region) || 0) + (c.count || 0));
     }
-    const cumulativeTop = [...byState.entries()]
+    topUsStates = [...byState.entries()]
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3)
       .map(([name]) => name);
-    if (cumulativeTop.length > topUsStates.length) topUsStates = cumulativeTop;
   }
 
   // Diff calendar dates in ET. Parse both as UTC midnights so the subtraction
