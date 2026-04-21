@@ -145,8 +145,10 @@
     { c:'Nairobi',       co:'Kenya',  lat:-1.29,  lon:36.82,  w:0.14, n:8   },
   ];
 
-  // Normalize a city record into the {lat, lon, w, n, label} shape used for rendering.
-  // `w` is a 0–1 weight derived from count, relative to the max in the set.
+  // Normalize a city record into the shape used for rendering. `country` is
+  // kept around so the hover title can show a region aggregate rather than
+  // the city-level count. `w` is a 0–1 weight derived from count, relative
+  // to the max in the set.
   const normalize = (cities) => {
     if (!cities || !cities.length) return [];
     const max = Math.max(...cities.map((c) => c.count || 0), 1);
@@ -154,17 +156,30 @@
       lat: c.lat,
       lon: c.lon,
       n: c.count,
+      country: c.country,
       label: `${c.city}, ${c.country}`,
       w: Math.max(0.12, Math.min(1, (c.count || 1) / max)),
     }));
   };
 
-  const renderPools = (cities) => cities.map((ct) => {
-    const [x, y] = proj(ct.lon, ct.lat);
-    const r  = (6 + ct.w * 11).toFixed(1);
-    const op = (0.28 + ct.w * 0.38).toFixed(2);
-    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" opacity="${op}"><title>${ct.label} — ${ct.n} visit${ct.n === 1 ? '' : 's'}</title></circle>`;
-  }).join('');
+  // The hover title shows the broader-region total (summed across every city
+  // we've seen in the same country) instead of the single-city count — a
+  // dot on Shanghai hovers as "China — 86 visits", not "Shanghai — 56".
+  const renderPools = (cities) => {
+    const byCountry = cities.reduce((acc, ct) => {
+      const key = ct.country || '—';
+      acc[key] = (acc[key] || 0) + (ct.n || 0);
+      return acc;
+    }, {});
+    return cities.map((ct) => {
+      const [x, y] = proj(ct.lon, ct.lat);
+      const r  = (6 + ct.w * 11).toFixed(1);
+      const op = (0.28 + ct.w * 0.38).toFixed(2);
+      const region = ct.country || '—';
+      const total = byCountry[region] ?? ct.n;
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" opacity="${op}"><title>${region} — ${total} visit${total === 1 ? '' : 's'}</title></circle>`;
+    }).join('');
+  };
 
   const renderBloom = (cities) => [...cities].sort((a, b) => b.w - a.w).slice(0, 5).map((ct) => {
     const [x, y] = proj(ct.lon, ct.lat);
@@ -172,7 +187,7 @@
   }).join('');
 
   // Initial seed — used until /api/visits returns. Same shape as normalize() output.
-  const SEED = CITIES.map((c) => ({ lat: c.lat, lon: c.lon, n: c.n, label: `${c.c}, ${c.co}`, w: c.w }));
+  const SEED = CITIES.map((c) => ({ lat: c.lat, lon: c.lon, n: c.n, country: c.co, label: `${c.c}, ${c.co}`, w: c.w }));
 
   window.VMAP = function(){
     // Each LAND path is re-projected point-by-point through proj(), so continents

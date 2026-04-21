@@ -598,7 +598,12 @@
   };
   const mockStats = () => {
     const liveSince = (window.JASON && window.JASON.liveSince) || '2026-04-12';
-    const today = new Date(); today.setUTCHours(0, 0, 0, 0);
+    // Match the Worker: day counter ticks at midnight ET, not UTC.
+    const etToday = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/New_York',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+    }).format(new Date());
+    const today = new Date(etToday + 'T00:00:00Z');
     const d0 = new Date(liveSince + 'T00:00:00Z');
     const daysLive = Math.max(0, Math.floor((today - d0) / 86400000));
     return {

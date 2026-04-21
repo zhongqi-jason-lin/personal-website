@@ -78,12 +78,10 @@ async function logVisit(env, request) {
   record.lon = lon;
   await env.VISITS.put(key, JSON.stringify(record));
 
-  // Per-day counter for the 30-day trend chart. Each counter key is a full UTC
-  // date (stats:day:YYYY-MM-DD) and TTL's to 60 days so we never accumulate
-  // unbounded history. The dedup above ensures each counter tracks unique
-  // visitors per day, matching the semantics of the city counters.
-  const today = now.slice(0, 10);                          // "YYYY-MM-DD"
-  const dayKey = 'stats:day:' + today;
+  // Per-day counter for the 30-day trend chart. Day boundary is midnight ET
+  // (America/New_York) so the counter rolls over when Jason's day rolls over,
+  // not at 20:00 ET like a UTC boundary would. TTL'd to 60 days.
+  const dayKey = 'stats:day:' + etDateStr();
   const prior = parseInt((await env.VISITS.get(dayKey)) || '0', 10);
   await env.VISITS.put(dayKey, String(prior + 1), { expirationTtl: 60 * 24 * 60 * 60 });
 
@@ -101,6 +99,17 @@ async function logVisit(env, request) {
 // launch; the client's /scripts/data.js carries the same value for the
 // mock/preview path and as a display fallback.
 const SITE_LIVE_DATE = '2025-01-01';
+
+// Calendar date in Eastern Time (America/New_York) as "YYYY-MM-DD". The day
+// counter and per-day KV keys both tick over at midnight ET so the site's
+// "Day N" aligns with Jason's local day instead of jumping forward at 20:00.
+// en-CA's default format already yields YYYY-MM-DD with a zero-padded month.
+function etDateStr(d = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(d);
+}
 
 // Build the /api/stats payload. Intentionally minimal: days-on-view, 30-day
 // country reach, and a top-3 country ranking — no raw visit counts are
@@ -122,8 +131,10 @@ async function getStats(env) {
     .slice(0, 3)
     .map(([cc]) => cc);
 
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
+  // Diff calendar dates in ET. Parse both as UTC midnights so the subtraction
+  // is a clean integer — the parse TZ cancels out; what matters is that both
+  // endpoints are the same calendar date (ET) expressed the same way.
+  const today = new Date(etDateStr() + 'T00:00:00Z');
   const live = new Date(SITE_LIVE_DATE + 'T00:00:00Z');
   const daysLive = Math.max(0, Math.floor((today - live) / 86400000));
 
