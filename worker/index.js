@@ -78,12 +78,32 @@ async function logVisit(env, request) {
   record.lon = lon;
   await env.VISITS.put(key, JSON.stringify(record));
 
-  // Per-day counter for the 30-day trend chart. Day boundary is midnight ET
-  // (America/New_York) so the counter rolls over when Jason's day rolls over,
-  // not at 20:00 ET like a UTC boundary would. TTL'd to 60 days.
-  const dayKey = 'stats:day:' + etDateStr();
-  const prior = parseInt((await env.VISITS.get(dayKey)) || '0', 10);
-  await env.VISITS.put(dayKey, String(prior + 1), { expirationTtl: 60 * 24 * 60 * 60 });
+  // Per-day counters for the 30-day stats panel. Day boundary is midnight
+  // ET (America/New_York), TTL 60 days. Three counter families share the
+  // same ET date and rotate together:
+  //   stats:day:<date>             — total visits that day (unused today
+  //                                  but kept for a future trend chart)
+  //   stats:cc:<date>:<country>    — visits per country (→ Top Countries)
+  //   stats:uscity:<date>:<slug>   — visits per US city (→ Top cities in US)
+  // cityname sidecar stores the pretty name for each US-city slug so the
+  // panel can render "New Haven" rather than the URL-safe slug.
+  const dayStr = etDateStr();
+  const stats60d = { expirationTtl: 60 * 24 * 60 * 60 };
+  const dayKey = 'stats:day:' + dayStr;
+  const priorDay = parseInt((await env.VISITS.get(dayKey)) || '0', 10);
+  await env.VISITS.put(dayKey, String(priorDay + 1), stats60d);
+
+  const ccKey = 'stats:cc:' + dayStr + ':' + country;
+  const priorCc = parseInt((await env.VISITS.get(ccKey)) || '0', 10);
+  await env.VISITS.put(ccKey, String(priorCc + 1), stats60d);
+
+  if (country === 'US') {
+    const slug = city.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const usKey = 'stats:uscity:' + dayStr + ':' + slug;
+    const priorUs = parseInt((await env.VISITS.get(usKey)) || '0', 10);
+    await env.VISITS.put(usKey, String(priorUs + 1), stats60d);
+    await env.VISITS.put('stats:cityname:' + slug, city, { expirationTtl: 90 * 24 * 60 * 60 });
+  }
 
   if (!existing) {
     const index = (await env.VISITS.get(INDEX_KEY, { type: 'json' })) || [];
@@ -111,25 +131,86 @@ function etDateStr(d = new Date()) {
   }).format(d);
 }
 
-// Build the /api/stats payload. Intentionally minimal: days-on-view, 30-day
-// country reach, and a top-3 country ranking — no raw visit counts are
-// returned (the panel renders presence and order, not magnitude).
-async function getStats(env) {
-  const cities = await getVisits(env);
+// YYYY-MM-DD string for today minus N ET days. Used as an inclusive lower
+// bound when filtering daily-counter keys.
+function etDateMinusDays(n) {
+  const t = new Date(etDateStr() + 'T00:00:00Z');
+  t.setUTCDate(t.getUTCDate() - n);
+  return t.toISOString().slice(0, 10);
+}
 
-  // Aggregate visits by country across all stored cities. For a site that's
-  // only days old, all-time ≈ past 30 days; if the site ages past 30 days we
-  // can switch to a per-day per-country counter later without changing the
-  // UI shape.
-  const byCountry = new Map();
-  for (const c of cities) {
-    if (!c.country) continue;
-    byCountry.set(c.country, (byCountry.get(c.country) || 0) + (c.count || 0));
-  }
-  const topCountries = [...byCountry.entries()]
+// Sum per-day counter values grouped by the 4th key segment (country code or
+// city slug). KV has no aggregate queries, so we list all keys under the
+// prefix, reject ones older than `cutoff`, then fan out gets in parallel.
+// Both counter families use keys shaped "stats:<fam>:<date>:<field>", so the
+// date lives at segment index 2 and the field at 3.
+async function sumDailyByField(env, prefix, cutoff) {
+  const sums = new Map();
+  let cursor;
+  do {
+    const page = await env.VISITS.list({ prefix, cursor });
+    const fresh = page.keys.filter((k) => {
+      const segs = k.name.split(':');
+      return segs[2] && segs[2] >= cutoff;
+    });
+    const rows = await Promise.all(fresh.map(async (k) => {
+      const segs = k.name.split(':');
+      const n = parseInt((await env.VISITS.get(k.name)) || '0', 10);
+      return [segs[3] || '', n];
+    }));
+    for (const [field, n] of rows) {
+      if (!field) continue;
+      sums.set(field, (sums.get(field) || 0) + n);
+    }
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor);
+  return sums;
+}
+
+// Build the /api/stats payload. Days-on-view + two 30-day rankings:
+// Top Countries (by visit count) and Top cities in US. During the cold-start
+// window right after this Worker rolls out, daily counters are sparse, so
+// both rankings fall back to the cumulative per-city records.
+async function getStats(env) {
+  const cutoff = etDateMinusDays(29);   // 30 days inclusive of today
+  const [ccSums, usSums, cities] = await Promise.all([
+    sumDailyByField(env, 'stats:cc:', cutoff),
+    sumDailyByField(env, 'stats:uscity:', cutoff),
+    getVisits(env),
+  ]);
+
+  let topCountries = [...ccSums.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(([cc]) => cc);
+  if (topCountries.length === 0) {
+    const byCountry = new Map();
+    for (const c of cities) {
+      if (!c.country) continue;
+      byCountry.set(c.country, (byCountry.get(c.country) || 0) + (c.count || 0));
+    }
+    topCountries = [...byCountry.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([cc]) => cc);
+  }
+
+  const topSlugs = [...usSums.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([slug]) => slug);
+  let topUsCities;
+  if (topSlugs.length) {
+    topUsCities = await Promise.all(topSlugs.map(async (slug) =>
+      (await env.VISITS.get('stats:cityname:' + slug)) || slug
+    ));
+  } else {
+    topUsCities = cities
+      .filter((c) => c.country === 'US')
+      .sort((a, b) => (b.count || 0) - (a.count || 0))
+      .slice(0, 3)
+      .map((c) => c.city);
+  }
 
   // Diff calendar dates in ET. Parse both as UTC midnights so the subtraction
   // is a clean integer — the parse TZ cancels out; what matters is that both
@@ -141,8 +222,8 @@ async function getStats(env) {
   return {
     liveSince: SITE_LIVE_DATE,
     daysLive,
-    countryCount: byCountry.size,
     topCountries,
+    topUsCities,
   };
 }
 

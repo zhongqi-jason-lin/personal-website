@@ -514,15 +514,19 @@
                 <div class="since" data-stat="since-date">—</div>
               </div>
               <div class="block">
-                <div class="lbl">30-day reach</div>
-                <div class="big"><span data-stat="countries">—</span><span class="unit">countries</span></div>
-              </div>
-              <div class="block">
-                <div class="lbl">Mostly seen in</div>
+                <div class="lbl">Top Countries</div>
                 <ol class="rank">
                   <li><span class="roman">I</span><span class="country" data-stat="rank1">—</span></li>
                   <li><span class="roman">II</span><span class="country" data-stat="rank2">—</span></li>
                   <li><span class="roman">III</span><span class="country" data-stat="rank3">—</span></li>
+                </ol>
+              </div>
+              <div class="block">
+                <div class="lbl">Top cities in US</div>
+                <ol class="rank">
+                  <li><span class="roman">I</span><span class="country" data-stat="us1">—</span></li>
+                  <li><span class="roman">II</span><span class="country" data-stat="us2">—</span></li>
+                  <li><span class="roman">III</span><span class="country" data-stat="us3">—</span></li>
                 </ol>
               </div>
             </div>
@@ -590,11 +594,14 @@
     if (!s) return;
     set('day-n', String(s.daysLive ?? 0));
     set('since-date', s.liveSince ? `live since ${prettyDate(s.liveSince)}` : '—');
-    set('countries', String(s.countryCount ?? 0));
     const top = s.topCountries || [];
     set('rank1', countryName(top[0]) || '—');
     set('rank2', countryName(top[1]) || '—');
     set('rank3', countryName(top[2]) || '—');
+    const us = s.topUsCities || [];
+    set('us1', us[0] || '—');
+    set('us2', us[1] || '—');
+    set('us3', us[2] || '—');
   };
   const mockStats = () => {
     const liveSince = (window.JASON && window.JASON.liveSince) || '2026-04-12';
@@ -609,8 +616,8 @@
     return {
       liveSince,
       daysLive,
-      countryCount: 27,
       topCountries: ['US', 'GB', 'SG'],
+      topUsCities: ['New Haven', 'New York', 'San Francisco'],
     };
   };
   requestAnimationFrame(async () => { renderStats(await pickStats()); });
