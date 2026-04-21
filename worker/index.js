@@ -81,12 +81,12 @@ async function logVisit(env, request) {
   // Per-day counters for the 30-day stats panel. Day boundary is midnight
   // ET (America/New_York), TTL 60 days. Three counter families share the
   // same ET date and rotate together:
-  //   stats:day:<date>             — total visits that day (unused today
-  //                                  but kept for a future trend chart)
-  //   stats:cc:<date>:<country>    — visits per country (→ Top Countries)
-  //   stats:uscity:<date>:<slug>   — visits per US city (→ Top cities in US)
-  // cityname sidecar stores the pretty name for each US-city slug so the
-  // panel can render "New Haven" rather than the URL-safe slug.
+  //   stats:day:<date>              — total visits that day (unused today
+  //                                   but kept for a future trend chart)
+  //   stats:cc:<date>:<country>     — visits per country (→ Top Countries)
+  //   stats:usstate:<date>:<slug>   — visits per US state (→ Top US States)
+  // statename sidecar stores the pretty name for each state slug so the
+  // panel can render "New York" rather than the URL-safe "new-york".
   const dayStr = etDateStr();
   const stats60d = { expirationTtl: 60 * 24 * 60 * 60 };
   const dayKey = 'stats:day:' + dayStr;
@@ -97,12 +97,12 @@ async function logVisit(env, request) {
   const priorCc = parseInt((await env.VISITS.get(ccKey)) || '0', 10);
   await env.VISITS.put(ccKey, String(priorCc + 1), stats60d);
 
-  if (country === 'US') {
-    const slug = city.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    const usKey = 'stats:uscity:' + dayStr + ':' + slug;
+  if (country === 'US' && region) {
+    const slug = region.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const usKey = 'stats:usstate:' + dayStr + ':' + slug;
     const priorUs = parseInt((await env.VISITS.get(usKey)) || '0', 10);
     await env.VISITS.put(usKey, String(priorUs + 1), stats60d);
-    await env.VISITS.put('stats:cityname:' + slug, city, { expirationTtl: 90 * 24 * 60 * 60 });
+    await env.VISITS.put('stats:statename:' + slug, region, { expirationTtl: 90 * 24 * 60 * 60 });
   }
 
   if (!existing) {
@@ -173,9 +173,9 @@ async function sumDailyByField(env, prefix, cutoff) {
 // both rankings fall back to the cumulative per-city records.
 async function getStats(env) {
   const cutoff = etDateMinusDays(29);   // 30 days inclusive of today
-  const [ccSums, usSums, cities] = await Promise.all([
+  const [ccSums, stateSums, cities] = await Promise.all([
     sumDailyByField(env, 'stats:cc:', cutoff),
-    sumDailyByField(env, 'stats:uscity:', cutoff),
+    sumDailyByField(env, 'stats:usstate:', cutoff),
     getVisits(env),
   ]);
 
@@ -195,21 +195,26 @@ async function getStats(env) {
       .map(([cc]) => cc);
   }
 
-  const topSlugs = [...usSums.entries()]
+  const topSlugs = [...stateSums.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(([slug]) => slug);
-  let topUsCities;
+  let topUsStates;
   if (topSlugs.length) {
-    topUsCities = await Promise.all(topSlugs.map(async (slug) =>
-      (await env.VISITS.get('stats:cityname:' + slug)) || slug
+    topUsStates = await Promise.all(topSlugs.map(async (slug) =>
+      (await env.VISITS.get('stats:statename:' + slug)) || slug
     ));
   } else {
-    topUsCities = cities
-      .filter((c) => c.country === 'US')
-      .sort((a, b) => (b.count || 0) - (a.count || 0))
+    // Cold-start fallback: roll up cumulative US records by region.
+    const byState = new Map();
+    for (const c of cities) {
+      if (c.country !== 'US' || !c.region) continue;
+      byState.set(c.region, (byState.get(c.region) || 0) + (c.count || 0));
+    }
+    topUsStates = [...byState.entries()]
+      .sort((a, b) => b[1] - a[1])
       .slice(0, 3)
-      .map((c) => c.city);
+      .map(([name]) => name);
   }
 
   // Diff calendar dates in ET. Parse both as UTC midnights so the subtraction
@@ -223,7 +228,7 @@ async function getStats(env) {
     liveSince: SITE_LIVE_DATE,
     daysLive,
     topCountries,
-    topUsCities,
+    topUsStates,
   };
 }
 

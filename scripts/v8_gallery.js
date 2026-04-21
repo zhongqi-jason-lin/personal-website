@@ -522,7 +522,7 @@
                 </ol>
               </div>
               <div class="block">
-                <div class="lbl">Top US Cities</div>
+                <div class="lbl">Top US States</div>
                 <ol class="rank">
                   <li><span class="roman">I</span><span class="country" data-stat="us1">—</span></li>
                   <li><span class="roman">II</span><span class="country" data-stat="us2">—</span></li>
@@ -598,7 +598,7 @@
     set('rank1', countryName(top[0]) || '—');
     set('rank2', countryName(top[1]) || '—');
     set('rank3', countryName(top[2]) || '—');
-    const us = s.topUsCities || [];
+    const us = s.topUsStates || [];
     set('us1', us[0] || '—');
     set('us2', us[1] || '—');
     set('us3', us[2] || '—');
@@ -617,7 +617,7 @@
       liveSince,
       daysLive,
       topCountries: ['US', 'GB', 'SG'],
-      topUsCities: ['New Haven', 'New York', 'San Francisco'],
+      topUsStates: ['Connecticut', 'New York', 'California'],
     };
   };
   requestAnimationFrame(async () => { renderStats(await pickStats()); });
