@@ -24,14 +24,25 @@
   .vF .plate{background:var(--paper-2);border-right:1px solid var(--rule);padding:2.5rem 2.25rem 3rem;display:flex;flex-direction:column;gap:2rem}
   /* No stage border-bottom — the .collection footer row below draws the page-bottom rule. */
   .vF .plate .id{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
-  .vF .plate .who{display:grid;grid-template-columns:auto 1fr;gap:1.15rem;align-items:center}
+  /* who: flex row always (no wrap), shrink-wrapped around its content
+     via width:max-content and centered in the plate via margin-inline:
+     auto. This keeps the pic + text as ONE horizontal group at every
+     viewport, vertically aligning with the centered .social icons row
+     immediately below. max-width:100% prevents overflow on narrow
+     plates — at which point the JS cap on --pic-size ensures the text
+     column retains enough width for the name to read. */
+  .vF .plate .who{display:flex;flex-direction:row;align-items:center;gap:1.15rem;width:max-content;max-width:100%;margin-inline:auto}
   .vF .plate .who-text{display:flex;flex-direction:column;justify-content:center;gap:.45rem}
-  /* Pic: fluid square that scales with viewport width via clamp — no dynamic
-     height coupling, no axis-asymmetric clamps, so it can never go oval and
-     it transitions smoothly as you resize. Max trimmed from 168→152 and the
-     vw slope from 11→10 to hand ~15–25px back to the h1 column, which was
-     causing the name to wrap at common MacBook widths. */
-  .vF .plate .pic{width:clamp(104px,10vw,152px);aspect-ratio:1/1;height:auto;border-radius:50%;background:url('${(J&&J.headshot)||"assets/headshot.jpg"}') center/cover,var(--paper);box-shadow:0 14px 30px -16px rgba(0,0,0,.3),0 0 0 5px var(--paper),0 0 0 6px var(--ink);align-self:center}
+  /* Pic: sized from the --pic-size CSS variable, which JS syncs to 0.9x
+     the .who-text block's rendered height on load + resize + font-load —
+     the 0.9 factor dials the portrait slightly smaller than text height
+     so it doesn't dominate the group visually. The min/max clamp pair
+     acts as a hard range: floor stops the pic from collapsing when the
+     name fits on one line at wide viewports; ceiling stops a runaway
+     feedback loop during resize (narrow text column → text wraps taller
+     → JS makes pic bigger → text column narrower → loop). The floor
+     also covers the pre-JS frame and the reduced-motion / no-JS case. */
+  .vF .plate .pic{width:var(--pic-size,clamp(108px,9.9vw,158px));height:var(--pic-size,clamp(108px,9.9vw,158px));min-width:clamp(108px,9.9vw,158px);min-height:clamp(108px,9.9vw,158px);max-width:200px;max-height:200px;flex-shrink:0;border-radius:50%;background:url('${(J&&J.headshot)||"assets/headshot.jpg"}') center/cover,var(--paper);box-shadow:0 14px 30px -16px rgba(0,0,0,.3),0 0 0 5px var(--paper),0 0 0 6px var(--ink)}
   .vF .plate h1{font-family:var(--serif);font-weight:600;font-size:clamp(29px,2.7vw,41px);line-height:1.04;letter-spacing:-.03em;margin:0 0 .4rem;text-wrap:balance}
   .vF .plate h1 em{font-style:normal;color:var(--accent);font-weight:400}
   .vF .plate .role{font-family:var(--mono);font-size:14.5px;letter-spacing:.06em;color:var(--ink-soft);line-height:1.5}
@@ -135,7 +146,13 @@
 
   /* Toolkit in left plate */
   .vF .plate .skills{margin:0 -2.25rem;padding:2.25rem 2.25rem 0;display:grid;grid-template-columns:repeat(2,1fr);gap:0;border-top:1px solid var(--rule)}
-  .vF .plate .skill{padding:.95rem .75rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column;gap:.4rem;min-height:68px}
+  /* justify-content:flex-start is explicit here to shadow a legacy
+     .vF .skill rule further down that still sets justify-content:
+     space-between. Without this override, a shorter-content cell in a
+     grid row with a 2-line-title sibling would push its title text to
+     the bottom of the cell (aligning with the tall sibling's wrapped
+     2nd line) — reading as "text not top-aligned" in the Toolkit grid. */
+  .vF .plate .skill{padding:.95rem .75rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column;justify-content:flex-start;gap:.4rem;min-height:68px}
   .vF .plate .skill:nth-child(2n){border-right:0}
   .vF .plate .skill .n{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink-faint)}
   .vF .plate .skill .t{font-family:var(--serif);font-size:15.5px;line-height:1.3;letter-spacing:-.01em;color:var(--ink);font-weight:500}
@@ -263,21 +280,23 @@
     .vF .plate{padding:1.75rem 1.25rem 2rem;gap:1.5rem;border-right:none;border-bottom:1px solid var(--rule)}
     .vF .hall{padding:1.75rem 1.25rem 2.5rem}
 
-    /* Swap the .who grid for a centered flex row on mobile so the
-       headshot + name block sits in the middle of the plate, not pinned
-       to the left edge. align-items:center keeps the circular portrait
-       vertically balanced against the name+role column, justify-content:
-       center centers the whole group, grid-template-columns:unset clears
-       the desktop grid declaration. */
-    .vF .plate .who{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1rem;grid-template-columns:unset}
+    /* Mobile .who: center the group tight against its own content. We
+       reset min-height (desktop uses a clamp floor so the pic can
+       stretch to a reasonable size) because on mobile the pic is
+       fixed at 72px and any extra row height would show as empty
+       padding above/below the headshot. */
+    .vF .plate .who{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1rem;min-height:0}
     /* Center the text column's own children (name, role, social) so the
-       horizontal centering of the outer group cascades all the way down. */
-    .vF .plate .who-text{min-height:0;align-items:center;text-align:center}
+       horizontal centering of the outer group cascades all the way down.
+       min-width:0 resets the desktop 280px wrap-trigger floor — on mobile
+       the pic is already 72px and there's ample room to keep pic + text
+       on one row against the full-width plate, so we want NO wrap. */
+    .vF .plate .who-text{min-height:0;min-width:0;align-items:center;text-align:center}
     /* Headshot trimmed to 72px on mobile. At 88 the headshot + name column
        filled the plate edge-to-edge, leaving no breathing room for the
        centering to read visually. 72px hands back ~15px per side, enough
        for the group to feel set in the middle of the card. */
-    .vF .plate .pic{width:72px;height:72px;min-width:0;max-width:none;aspect-ratio:auto;flex-shrink:0;box-shadow:0 10px 20px -14px rgba(0,0,0,.3),0 0 0 3px var(--paper),0 0 0 4px var(--ink)}
+    .vF .plate .pic{width:72px;height:72px;min-width:0;min-height:0;max-width:none;aspect-ratio:auto;flex-shrink:0;box-shadow:0 10px 20px -14px rgba(0,0,0,.3),0 0 0 3px var(--paper),0 0 0 4px var(--ink)}
     .vF .plate h1{font-size:clamp(26px,7vw,32px);line-height:1.1;letter-spacing:-.02em;margin:0 0 .25rem}
     .vF .plate .role{font-size:13px;line-height:1.45}
 
@@ -348,8 +367,11 @@
     .vF .plate .block[data-collapsible][data-open="true"]{grid-template-rows:auto 1fr}
     .vF .plate .block[data-collapsible] > .block-body{overflow:hidden;min-height:0}
     /* Heading is the tap target. Reset h3 margin to 0 while collapsed so the
-       closed state reads as a tidy row; expanded state restores rhythm below. */
-    .vF .plate .block[data-collapsible] > h3{cursor:pointer;user-select:none;margin-bottom:0;transition:margin-bottom .3s}
+       closed state reads as a tidy row; expanded state restores rhythm below.
+       Duration + easing MUST match the .block grid-template-rows transition
+       below — mismatched timing made the heading slide and the body reveal
+       desync, which read as the "laggy expansion" on mobile. */
+    .vF .plate .block[data-collapsible] > h3{cursor:pointer;user-select:none;margin-bottom:0;transition:margin-bottom .4s cubic-bezier(.2,.7,.2,1)}
     .vF .plate .block[data-collapsible][data-open="true"] > h3{margin-bottom:1.6rem}
     /* Chevron sits at the right edge of the h3. Rotates through a "+" ↔ "−"
        content swap rather than a transform, so the glyph itself changes
@@ -363,14 +385,17 @@
     .vF .plate .block[data-collapsible] .chevron{display:inline-block;font-family:var(--mono);font-size:13px;line-height:1;color:var(--ink-soft);font-weight:500;margin-left:.4rem;letter-spacing:0}
     .vF .plate .block[data-collapsible] .chevron::before{content:"+"}
     .vF .plate .block[data-collapsible][data-open="true"] .chevron::before{content:"−"}
-    /* Collapsible rows/skills currently carry a top-border + 2.25rem of padding
-       that made sense as a section-rule in the open state; when the body is
-       collapsed we don't want a floating rule line under the heading. Scope
-       the border + padding to the open state only. */
+    /* Rows/skills keep their top-border + padding in BOTH states. Since
+       .rows lives inside .block-body (overflow:hidden, grid row 0fr when
+       closed) the border and padding are already clipped to zero visible
+       height when the block is collapsed — no "floating rule under the
+       heading" problem. Making them state-independent removes the snap
+       at click time (border-width 0→1, padding 0→1.25rem used to apply
+       instantly, then grid-template-rows animated over 400ms — the
+       initial snap is what read as "clunky"). Now only one property
+       animates the reveal: grid-template-rows. */
     .vF .plate .block[data-collapsible] .rows,
-    .vF .plate .block[data-collapsible] .skills{border-top:0;padding-top:0}
-    .vF .plate .block[data-collapsible][data-open="true"] .rows,
-    .vF .plate .block[data-collapsible][data-open="true"] .skills{border-top:1px solid var(--rule);padding-top:1.25rem}
+    .vF .plate .block[data-collapsible] .skills{border-top:1px solid var(--rule);padding-top:1.25rem}
   }
   /* Mobile teaser polish — bump stroke-width on the diagram strokes so the
      line-drawings don't feel spidery at small screen sizes. Native SVG stroke
@@ -544,6 +569,53 @@
     requestAnimationFrame(() => window.VMAP_REFRESH());
   }
 
+  // Sync the headshot diameter to the rendered height of the .who-text
+  // column (name + role), so the portrait reads as a matched pair with
+  // the text rather than an arbitrary sized circle. Pure CSS can't do
+  // this in a flex row: with align-self:stretch the height derives from
+  // the text column fine, but Chromium won't back-compute width from
+  // aspect-ratio in that direction, so the pic renders 0px wide. A
+  // single-variable JS sync is simpler and survives resize + font-load.
+  // Mobile (≤640px) keeps the fixed 72px pic from the @media override.
+  const picEl = root.querySelector('.vF .plate .pic');
+  const whoTextEl = root.querySelector('.vF .plate .who-text');
+  const plateEl = root.querySelector('.vF .plate');
+  if (picEl && whoTextEl && plateEl) {
+    const mobileMQ = matchMedia('(max-width:640px)');
+    const TEXT_RESERVE = 240;  // px — min text column width we'll protect
+    const GAP = 20;            // px — approx flex gap between pic and text
+    const ABSOLUTE_CAP = 200;  // px — hard ceiling regardless of container
+    const syncPic = () => {
+      if (mobileMQ.matches) { picEl.style.removeProperty('--pic-size'); return; }
+      const h = whoTextEl.getBoundingClientRect().height;
+      // Plate-width-aware cap: the pic can never be so wide that the
+      // text column is forced below TEXT_RESERVE. This is the correct
+      // way to cap a "follow-the-text-height" sync — cap against
+      // available space, not an absolute px value. Without this,
+      // narrow plates (900-1100px viewports, plate ~360-440px) trigger
+      // a runaway feedback loop: pic grows → text squeezes → text
+      // height grows (more wrapping) → JS grows pic more → loop.
+      const plateCS = getComputedStyle(plateEl);
+      const plateContent = plateEl.getBoundingClientRect().width
+        - parseFloat(plateCS.paddingLeft)
+        - parseFloat(plateCS.paddingRight);
+      const spaceCap = Math.max(108, plateContent - TEXT_RESERVE - GAP);
+      const cap = Math.min(spaceCap, ABSOLUTE_CAP);
+      // Scale to 0.9x so the portrait stays slightly smaller than the
+      // text column height — matches the 10% shrink applied to the
+      // CSS clamp floor so the JS sync and the default stay in step.
+      if (h > 50) picEl.style.setProperty('--pic-size', Math.min(h * 0.9, cap) + 'px');
+    };
+    requestAnimationFrame(syncPic);
+    window.addEventListener('resize', syncPic);
+    if (mobileMQ.addEventListener) mobileMQ.addEventListener('change', syncPic);
+    // Fonts can shift the text-column height after first paint; re-sync
+    // once the browser signals the font face has loaded.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(syncPic);
+    }
+  }
+
   // Fire a tracking beacon when the CV link is clicked. We instrument the click
   // rather than the PDF request itself because Cloudflare Workers Static Assets
   // serves /assets/*.pdf before the Worker runs — direct GETs are invisible.
@@ -604,7 +676,7 @@
     set('us3', us[2] || '—');
   };
   const mockStats = () => {
-    const liveSince = (window.JASON && window.JASON.liveSince) || '2026-04-12';
+    const liveSince = (window.JASON && window.JASON.liveSince) || '2026-04-19';
     // Match the Worker: day counter ticks at midnight ET, not UTC.
     const etToday = new Intl.DateTimeFormat('en-CA', {
       timeZone: 'America/New_York',
