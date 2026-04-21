@@ -67,13 +67,23 @@
     "M42,68 L60,55 L100,52 L150,48 L200,45 L250,48 L285,58 L308,75 L330,98 L345,120 L335,130 L318,134 L305,135 L298,158 L285,180 L270,185 L248,182 L235,195 L258,212 L282,228 L268,220 L248,215 L222,198 L198,170 L175,145 L155,125 L135,108 L110,95 L82,88 L58,82 Z",
     // Central America
     "M260,275 L285,290 L305,310 L315,325 L300,330 L280,320 L265,305 L258,290 Z",
+    // Caribbean — stylized Greater Antilles arc (Cuba → Hispaniola →
+    // Puerto Rico). Sits in the gap between NA (Florida ends ~y228) and
+    // the Central America polygon (starts y275). Drawn as one elongated
+    // blob rather than individual islands to match the map's stylization.
+    "M266,191 L290,188 L312,192 L328,199 L322,205 L300,204 L278,200 L268,196 Z",
     // South America
     "M310,310 L345,305 L370,325 L385,355 L390,395 L375,430 L350,455 L325,465 L305,450 L295,420 L300,385 L305,350 Z",
     // Greenland — x<=415 keeps the whole polygon west of the Pacific-centered date line
     "M360,80 L400,75 L414,95 L412,120 L395,135 L370,128 L355,105 Z",
-    // Europe
-    "M485,120 L530,115 L570,125 L585,145 L575,165 L555,175 L525,180 L500,170 L485,155 L480,135 Z",
-    // Africa
+    // Europe — west edge extended to cover the Iberian peninsula (Galicia +
+    // Portugal reach lon -10°, which is ~x=472 in the 0°-centered frame).
+    "M485,120 L530,115 L570,125 L585,145 L575,165 L555,175 L525,180 L500,172 L486,165 L476,155 L473,140 L480,128 Z",
+    // North Africa — Morocco / Algeria / Tunisia / Libya / Egypt. The main
+    // Africa polygon below starts at lat ~14°N; without this, everything
+    // north of the Sahel was missing (biggest visible hole on the map).
+    "M458,160 L480,148 L510,145 L545,148 L585,152 L610,162 L625,175 L628,195 L610,213 L575,217 L530,215 L490,213 L465,205 L452,188 L453,170 Z",
+    // Africa (sub-Saharan) — abuts the North Africa polygon above.
     "M500,210 L555,205 L595,220 L620,250 L625,295 L615,335 L595,370 L570,395 L540,400 L515,385 L500,355 L490,320 L488,280 L493,240 Z",
     // Middle East / Arabia
     "M605,220 L640,215 L655,240 L650,265 L625,275 L605,260 L600,235 Z",
@@ -112,43 +122,45 @@
     "M935,85 L950,90 L958,102 L948,115 L935,108 L930,95 Z",
   ];
 
-  // Cities with approximate lat/long and visitor weight (0–1).
-  // Weight drives dot radius and opacity.
+  // Cities with approximate lat/long and visitor weight (0–1). `r` is the
+  // state / province / administrative region — hover aggregation rolls up
+  // counts to this level; '' means "roll up to country only" (city-states,
+  // special admin regions). Weight drives dot radius and opacity.
   const CITIES = [
-    { c:'New Haven',     co:'USA',    lat:41.31,  lon:-72.92, w:1.00, n:284 },
-    { c:'New York',      co:'USA',    lat:40.71,  lon:-74.00, w:0.92, n:196 },
-    { c:'San Francisco', co:'USA',    lat:37.77,  lon:-122.42,w:0.78, n:112 },
-    { c:'Boston',        co:'USA',    lat:42.36,  lon:-71.06, w:0.70, n:88  },
-    { c:'Cambridge',     co:'UK',     lat:52.20,  lon:0.12,   w:0.55, n:54  },
-    { c:'London',        co:'UK',     lat:51.51,  lon:-0.13,  w:0.68, n:71  },
-    { c:'Paris',         co:'France', lat:48.86,  lon:2.35,   w:0.42, n:38  },
-    { c:'Berlin',        co:'Germany',lat:52.52,  lon:13.40,  w:0.40, n:34  },
-    { c:'Zurich',        co:'Swiss',  lat:47.37,  lon:8.54,   w:0.35, n:28  },
-    { c:'Stockholm',     co:'Sweden', lat:59.33,  lon:18.07,  w:0.28, n:19  },
-    { c:'Tel Aviv',      co:'Israel', lat:32.08,  lon:34.78,  w:0.30, n:22  },
-    { c:'Beijing',       co:'China',  lat:39.90,  lon:116.41, w:0.50, n:44  },
-    { c:'Shanghai',      co:'China',  lat:31.23,  lon:121.47, w:0.58, n:56  },
-    { c:'Shenzhen',      co:'China',  lat:22.54,  lon:114.06, w:0.38, n:30  },
-    { c:'Hong Kong',     co:'HK',     lat:22.32,  lon:114.17, w:0.42, n:35  },
-    { c:'Tokyo',         co:'Japan',  lat:35.68,  lon:139.69, w:0.45, n:40  },
-    { c:'Seoul',         co:'Korea',  lat:37.57,  lon:126.98, w:0.32, n:24  },
-    { c:'Singapore',     co:'SG',     lat:1.35,   lon:103.82, w:0.34, n:27  },
-    { c:'Bangalore',     co:'India',  lat:12.97,  lon:77.59,  w:0.30, n:23  },
-    { c:'Sydney',        co:'Aus',    lat:-33.87, lon:151.21, w:0.36, n:28  },
-    { c:'Melbourne',     co:'Aus',    lat:-37.81, lon:144.96, w:0.26, n:18  },
-    { c:'Toronto',       co:'Canada', lat:43.65,  lon:-79.38, w:0.44, n:37  },
-    { c:'Vancouver',     co:'Canada', lat:49.28,  lon:-123.12,w:0.32, n:24  },
-    { c:'Mexico City',   co:'Mexico', lat:19.43,  lon:-99.13, w:0.22, n:15  },
-    { c:'São Paulo',     co:'Brazil', lat:-23.55, lon:-46.63, w:0.25, n:17  },
-    { c:'Buenos Aires',  co:'Arg',    lat:-34.60, lon:-58.38, w:0.18, n:11  },
-    { c:'Cape Town',     co:'S.Africa',lat:-33.92,lon:18.42,  w:0.16, n:9   },
-    { c:'Nairobi',       co:'Kenya',  lat:-1.29,  lon:36.82,  w:0.14, n:8   },
+    { c:'New Haven',     co:'USA',    r:'Connecticut',      lat:41.31,  lon:-72.92, w:1.00, n:284 },
+    { c:'New York',      co:'USA',    r:'New York',         lat:40.71,  lon:-74.00, w:0.92, n:196 },
+    { c:'San Francisco', co:'USA',    r:'California',       lat:37.77,  lon:-122.42,w:0.78, n:112 },
+    { c:'Boston',        co:'USA',    r:'Massachusetts',    lat:42.36,  lon:-71.06, w:0.70, n:88  },
+    { c:'Cambridge',     co:'UK',     r:'England',          lat:52.20,  lon:0.12,   w:0.55, n:54  },
+    { c:'London',        co:'UK',     r:'England',          lat:51.51,  lon:-0.13,  w:0.68, n:71  },
+    { c:'Paris',         co:'France', r:'Île-de-France',    lat:48.86,  lon:2.35,   w:0.42, n:38  },
+    { c:'Berlin',        co:'Germany',r:'Berlin',           lat:52.52,  lon:13.40,  w:0.40, n:34  },
+    { c:'Zurich',        co:'Swiss',  r:'Zürich',           lat:47.37,  lon:8.54,   w:0.35, n:28  },
+    { c:'Stockholm',     co:'Sweden', r:'Stockholm',        lat:59.33,  lon:18.07,  w:0.28, n:19  },
+    { c:'Tel Aviv',      co:'Israel', r:'Tel Aviv',         lat:32.08,  lon:34.78,  w:0.30, n:22  },
+    { c:'Beijing',       co:'China',  r:'Beijing',          lat:39.90,  lon:116.41, w:0.50, n:44  },
+    { c:'Shanghai',      co:'China',  r:'Shanghai',         lat:31.23,  lon:121.47, w:0.58, n:56  },
+    { c:'Shenzhen',      co:'China',  r:'Guangdong',        lat:22.54,  lon:114.06, w:0.38, n:30  },
+    { c:'Hong Kong',     co:'HK',     r:'',                 lat:22.32,  lon:114.17, w:0.42, n:35  },
+    { c:'Tokyo',         co:'Japan',  r:'Tokyo',            lat:35.68,  lon:139.69, w:0.45, n:40  },
+    { c:'Seoul',         co:'Korea',  r:'Seoul',            lat:37.57,  lon:126.98, w:0.32, n:24  },
+    { c:'Singapore',     co:'SG',     r:'',                 lat:1.35,   lon:103.82, w:0.34, n:27  },
+    { c:'Bangalore',     co:'India',  r:'Karnataka',        lat:12.97,  lon:77.59,  w:0.30, n:23  },
+    { c:'Sydney',        co:'Aus',    r:'New South Wales',  lat:-33.87, lon:151.21, w:0.36, n:28  },
+    { c:'Melbourne',     co:'Aus',    r:'Victoria',         lat:-37.81, lon:144.96, w:0.26, n:18  },
+    { c:'Toronto',       co:'Canada', r:'Ontario',          lat:43.65,  lon:-79.38, w:0.44, n:37  },
+    { c:'Vancouver',     co:'Canada', r:'British Columbia', lat:49.28,  lon:-123.12,w:0.32, n:24  },
+    { c:'Mexico City',   co:'Mexico', r:'CDMX',             lat:19.43,  lon:-99.13, w:0.22, n:15  },
+    { c:'São Paulo',     co:'Brazil', r:'São Paulo',        lat:-23.55, lon:-46.63, w:0.25, n:17  },
+    { c:'Buenos Aires',  co:'Arg',    r:'Buenos Aires',     lat:-34.60, lon:-58.38, w:0.18, n:11  },
+    { c:'Cape Town',     co:'S.Africa',r:'Western Cape',    lat:-33.92, lon:18.42,  w:0.16, n:9   },
+    { c:'Nairobi',       co:'Kenya',  r:'Nairobi',          lat:-1.29,  lon:36.82,  w:0.14, n:8   },
   ];
 
-  // Normalize a city record into the shape used for rendering. `country` is
-  // kept around so the hover title can show a region aggregate rather than
-  // the city-level count. `w` is a 0–1 weight derived from count, relative
-  // to the max in the set.
+  // Normalize a city record into the shape used for rendering. `country`
+  // and `region` are kept around so hover can aggregate at the state /
+  // province level. `w` is a 0–1 weight derived from count, relative to
+  // the max in the set.
   const normalize = (cities) => {
     if (!cities || !cities.length) return [];
     const max = Math.max(...cities.map((c) => c.count || 0), 1);
@@ -157,27 +169,31 @@
       lon: c.lon,
       n: c.count,
       country: c.country,
+      region: c.region || '',
       label: `${c.city}, ${c.country}`,
       w: Math.max(0.12, Math.min(1, (c.count || 1) / max)),
     }));
   };
 
-  // The hover title shows the broader-region total (summed across every city
-  // we've seen in the same country) instead of the single-city count — a
-  // dot on Shanghai hovers as "China — 86 visits", not "Shanghai — 56".
+  // Hover title rolls the count up to the state / province level — a dot on
+  // San Francisco reads "California, USA — N visits" where N sums across
+  // every city in California we've seen. Composite key scopes region by
+  // country so "Victoria, Australia" and "Victoria, Canada" don't collide.
+  // City-states (Singapore, HK) have empty regions → fall back to country.
   const renderPools = (cities) => {
-    const byCountry = cities.reduce((acc, ct) => {
-      const key = ct.country || '—';
-      acc[key] = (acc[key] || 0) + (ct.n || 0);
+    const keyOf = (ct) => (ct.region ? (ct.country || '—') + '\x00' + ct.region : (ct.country || '—'));
+    const totals = cities.reduce((acc, ct) => {
+      const k = keyOf(ct);
+      acc[k] = (acc[k] || 0) + (ct.n || 0);
       return acc;
     }, {});
     return cities.map((ct) => {
       const [x, y] = proj(ct.lon, ct.lat);
       const r  = (6 + ct.w * 11).toFixed(1);
       const op = (0.28 + ct.w * 0.38).toFixed(2);
-      const region = ct.country || '—';
-      const total = byCountry[region] ?? ct.n;
-      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" opacity="${op}"><title>${region} — ${total} visit${total === 1 ? '' : 's'}</title></circle>`;
+      const label = ct.region ? `${ct.region}, ${ct.country}` : (ct.country || '—');
+      const total = totals[keyOf(ct)] ?? ct.n;
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" opacity="${op}"><title>${label} — ${total} visit${total === 1 ? '' : 's'}</title></circle>`;
     }).join('');
   };
 
@@ -187,7 +203,7 @@
   }).join('');
 
   // Initial seed — used until /api/visits returns. Same shape as normalize() output.
-  const SEED = CITIES.map((c) => ({ lat: c.lat, lon: c.lon, n: c.n, country: c.co, label: `${c.c}, ${c.co}`, w: c.w }));
+  const SEED = CITIES.map((c) => ({ lat: c.lat, lon: c.lon, n: c.n, country: c.co, region: c.r || '', label: `${c.c}, ${c.co}`, w: c.w }));
 
   window.VMAP = function(){
     // Each LAND path is re-projected point-by-point through proj(), so continents
