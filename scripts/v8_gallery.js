@@ -522,7 +522,7 @@
                 </ol>
               </div>
               <div class="block">
-                <div class="lbl">Top cities in US</div>
+                <div class="lbl">Top US Cities</div>
                 <ol class="rank">
                   <li><span class="roman">I</span><span class="country" data-stat="us1">—</span></li>
                   <li><span class="roman">II</span><span class="country" data-stat="us2">—</span></li>
