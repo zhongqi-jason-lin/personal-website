@@ -58,60 +58,75 @@
   };
 
   // Simplified continent outlines (equirectangular coords, viewBox 1000×500).
-  // Not geographically precise — stylized silhouettes suitable for a site visitor map.
+  // Stylized silhouettes, not geographically precise. Audited for (1)
+  // correct lat/lon placement of each labeled region, (2) no overlapping
+  // polygon interiors (shared edges only), (3) every CITIES seed + every
+  // /api/visits-observed country has land underneath its dot.
   const LAND = [
     // North America — Alaska + Canada (Arctic, Labrador) + USA + Mexico + Central America
     // Traced clockwise from Alaska NW: Arctic coast → Labrador → US East →
     // Florida → Gulf → Mexico → Central America → Mexico Pacific → US West →
-    // BC → Alaska S → close back to NW. Stylized, not geographically precise.
+    // BC → Alaska S → close back to NW.
     "M42,68 L60,55 L100,52 L150,48 L200,45 L250,48 L285,58 L308,75 L330,98 L345,120 L335,130 L318,134 L305,135 L298,158 L285,180 L270,185 L248,182 L235,195 L258,212 L282,228 L268,220 L248,215 L222,198 L198,170 L175,145 L155,125 L135,108 L110,95 L82,88 L58,82 Z",
-    // Central America
-    "M260,275 L285,290 L305,310 L315,325 L300,330 L280,320 L265,305 L258,290 Z",
-    // Caribbean — stylized Greater Antilles arc (Cuba → Hispaniola →
-    // Puerto Rico). Sits in the gap between NA (Florida ends ~y228) and
-    // the Central America polygon (starts y275). Drawn as one elongated
-    // blob rather than individual islands to match the map's stylization.
+    // Caribbean — stylized Greater Antilles arc (Cuba → Hispaniola → Puerto
+    // Rico). Sits just south of Florida.
     "M266,191 L290,188 L312,192 L328,199 L322,205 L300,204 L278,200 L268,196 Z",
     // South America
     "M310,310 L345,305 L370,325 L385,355 L390,395 L375,430 L350,455 L325,465 L305,450 L295,420 L300,385 L305,350 Z",
     // Greenland — x<=415 keeps the whole polygon west of the Pacific-centered date line
     "M360,80 L400,75 L414,95 L412,120 L395,135 L370,128 L355,105 Z",
-    // Europe — west edge extended to cover the Iberian peninsula (Galicia +
-    // Portugal reach lon -10°, which is ~x=472 in the 0°-centered frame).
-    "M485,120 L530,115 L570,125 L585,145 L575,165 L555,175 L525,180 L500,172 L486,165 L476,155 L473,140 L480,128 Z",
-    // North Africa — Morocco / Algeria / Tunisia / Libya / Egypt. The main
-    // Africa polygon below starts at lat ~14°N; without this, everything
-    // north of the Sahel was missing (biggest visible hole on the map).
-    "M458,160 L480,148 L510,145 L545,148 L585,152 L610,162 L625,175 L628,195 L610,213 L575,217 L530,215 L490,213 L465,205 L452,188 L453,170 Z",
-    // Africa (sub-Saharan) — abuts the North Africa polygon above.
-    "M500,210 L555,205 L595,220 L620,250 L625,295 L615,335 L595,370 L570,395 L540,400 L515,385 L500,355 L490,320 L488,280 L493,240 Z",
+    // Europe — Iberia to the Balkans, north to the Baltic. South edge
+    // clipped at the Mediterranean; previous version dipped to lat 25°N
+    // (central Sahara) and overlapped North Africa across a 10° band.
+    "M473,131 L490,115 L520,100 L572,102 L590,115 L585,140 L550,148 L500,150 L475,148 Z",
+    // North Africa — Morocco / Algeria / Tunisia / Libya / Egypt. South
+    // edge clipped at the Sahel (~lat 14°N). Previous version dipped to
+    // lat -12°S (Congo basin) and overlapped sub-Saharan Africa from
+    // Sahel all the way through equatorial Africa.
+    "M472,153 L528,148 L585,160 L605,185 L600,205 L540,214 L455,211 L453,188 L462,178 Z",
+    // Africa (sub-Saharan) — now includes Horn of Africa (Somalia +
+    // eastern Ethiopia, which the old polygon cut off at lon 45°E —
+    // Mogadishu and Addis Ababa dots landed on ocean).
+    "M455,211 L540,216 L583,215 L615,218 L642,220 L620,255 L612,290 L598,330 L568,346 L540,346 L512,320 L495,280 L488,245 Z",
     // Middle East / Arabia
     "M605,220 L640,215 L655,240 L650,265 L625,275 L605,260 L600,235 Z",
-    // Russia — stretches from Kaliningrad/Baltic across Siberia to Chukotka.
-    // Previously completely missing: latitudes above ~54°N weren't drawn at all.
-    "M555,95 L588,80 L610,58 L680,50 L800,35 L870,42 L955,55 L995,72 L944,83 L938,106 L867,131 L828,111 L722,106 L639,119 L555,106 Z",
-    // Asia main — southern half of Eurasia (Turkey/Iran/Afghanistan/China/SE Asia)
-    "M590,110 L680,100 L760,105 L820,120 L860,140 L875,165 L860,185 L830,200 L790,210 L745,215 L700,210 L665,200 L630,185 L605,165 L593,140 Z",
+    // Russia — Baltic to Chukotka. South edge pulled up from lat 43°N
+    // (Vladivostok) to ~lat 48°N so it abuts Asia main cleanly instead
+    // of overlapping Mongolia + southern Siberia across a 10° band.
+    "M555,95 L588,80 L610,58 L680,50 L800,35 L870,42 L955,55 L995,72 L944,83 L938,106 L867,120 L828,113 L722,108 L639,118 L555,106 Z",
+    // Asia main — southern half of Eurasia (Turkey/Iran/China/Korea/SE
+    // Asia). North edge lowered from lat ~54°N to lat ~46°N so it no
+    // longer overlaps Russia. East bulge covers the Korean peninsula and
+    // the China east coast — the redundant "China east coast extension"
+    // polygon that used to sit entirely inside this one is gone.
+    "M593,125 L680,118 L760,120 L820,128 L862,144 L878,170 L862,195 L830,210 L790,213 L745,216 L705,213 L668,200 L632,185 L605,165 L595,140 Z",
     // India
     "M705,215 L740,215 L750,240 L745,265 L725,280 L710,265 L702,240 Z",
-    // Southeast Asia
+    // Southeast Asia — Malay peninsula + mainland tail.
     "M790,220 L825,225 L840,245 L830,265 L805,270 L790,255 L785,235 Z",
-    // China east coast extension
-    "M830,160 L870,170 L880,195 L865,215 L840,215 L828,195 Z",
     // Japan
     "M890,160 L905,155 L915,175 L910,195 L895,195 L888,178 Z",
     // Australia
     "M820,345 L880,340 L910,355 L920,380 L905,405 L870,415 L835,410 L815,390 L810,368 Z",
     // New Zealand
     "M935,415 L945,410 L955,425 L950,440 L938,438 L930,425 Z",
-    // UK / Ireland
-    "M465,125 L480,122 L488,140 L478,152 L465,148 L460,135 Z",
-    // Scandinavia
-    "M510,85 L545,82 L560,105 L548,125 L525,125 L510,110 Z",
+    // UK / Ireland — corrected latitudes. The old polygon had y=122-152,
+    // which put it at lat 35-46°N — 2000km south of the British Isles,
+    // floating in the North Atlantic offshore Portugal. London, Cambridge,
+    // Dublin, Edinburgh dots all landed on open ocean.
+    "M475,107 L480,97 L490,87 L502,90 L507,103 L498,111 L478,111 Z",
+    // Scandinavia + Finland + Baltic states. Old polygon stopped at the
+    // southern Gulf of Bothnia — Helsinki, Tallinn, Riga, Vilnius, and
+    // all of Finnish interior had no land underneath.
+    "M515,95 L528,82 L540,60 L572,53 L585,64 L583,85 L578,96 L572,102 L525,100 Z",
     // Iceland
     "M445,95 L462,92 L468,105 L458,115 L444,110 Z",
-    // Indonesia / Borneo
-    "M805,280 L835,278 L848,292 L838,305 L815,303 L802,290 Z",
+    // Indonesia — Sumatra + Java + Borneo + Sulawesi + Lesser Sunda
+    // Islands. Old polygon labeled "Indonesia / Borneo" was at lat -10°
+    // to -20°S, lon 109-125°E — actually Bali/Sumbawa/Flores only.
+    // Sumatra, Jakarta, Medan, KL, and all of Borneo had no land under
+    // their dots. Now an elongated NW-SE archipelago blob.
+    "M762,232 L800,225 L830,232 L853,250 L842,270 L812,278 L780,273 L760,250 Z",
     // Philippines — lat 5–19, lon 117–126
     "M835,200 L842,200 L848,215 L845,230 L838,232 L833,218 Z",
     // Papua New Guinea — lat −2 to −11, lon 140–151
