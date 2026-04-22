@@ -71,8 +71,18 @@
     // Caribbean — stylized Greater Antilles arc (Cuba → Hispaniola → Puerto
     // Rico). Sits just south of Florida.
     "M266,191 L290,188 L312,192 L328,199 L322,205 L300,204 L278,200 L268,196 Z",
-    // South America
-    "M310,310 L345,305 L370,325 L385,355 L390,395 L375,430 L350,455 L325,465 L305,450 L295,420 L300,385 L305,350 Z",
+    // Central America — Guatemala/Honduras/Nicaragua/Costa Rica/Panama land
+    // bridge between NA (ends at Yucatan ~y=228) and SA. Without this, the
+    // NA polygon's southern tip and SA's northern tip are separated by a
+    // ~77px strip of ocean where Mexico's southern border and the isthmus
+    // should be.
+    "M243,210 L258,215 L272,222 L286,232 L279,237 L264,232 L250,224 L241,217 Z",
+    // South America — covers lat 12°N (Guajira) to lat -55°S (Tierra del
+    // Fuego). Previous polygon was off by ~85px south (covered lat -20°S
+    // to -77°S — mostly Antarctic Ocean), so the ENTIRE northern half of
+    // SA (Amazon, Venezuela, Colombia, Guianas, northern Brazil) had no
+    // land under its dots. São Paulo and Rio landed in open ocean.
+    "M297,220 L325,214 L360,222 L388,238 L402,260 L408,285 L398,320 L385,350 L368,378 L345,398 L325,400 L312,388 L298,358 L288,320 L283,278 L286,245 Z",
     // Greenland — x<=415 keeps the whole polygon west of the Pacific-centered date line
     "M360,80 L400,75 L414,95 L412,120 L395,135 L370,128 L355,105 Z",
     // Europe — Iberia to the Balkans, north to the Baltic. South edge
@@ -102,8 +112,13 @@
     "M593,125 L680,118 L760,120 L820,128 L862,144 L878,170 L862,195 L830,210 L790,213 L745,216 L705,213 L668,200 L632,185 L605,165 L595,140 Z",
     // India
     "M705,215 L740,215 L750,240 L745,265 L725,280 L710,265 L702,240 Z",
-    // Southeast Asia — Malay peninsula + mainland tail.
-    "M790,220 L825,225 L840,245 L830,265 L805,270 L790,255 L785,235 Z",
+    // Southeast Asia + Insular SEA — Thailand + Malaysia + Sumatra + Java +
+    // Borneo + Sulawesi as one stylized blob. West edge extended to cover
+    // western Sumatra (Medan, Padang) + KL, which the old Thailand-only
+    // polygon was missing. Replaces a separate Indonesia polygon that used
+    // to sit INSIDE this one's bounds (double-filled overlap from ~x=791
+    // to x=841 at Sumatra/Borneo latitudes).
+    "M762,225 L790,220 L825,225 L845,245 L835,268 L810,273 L780,270 L762,252 L760,238 Z",
     // Japan
     "M890,160 L905,155 L915,175 L910,195 L895,195 L888,178 Z",
     // Australia
@@ -121,12 +136,8 @@
     "M515,95 L528,82 L540,60 L572,53 L585,64 L583,85 L578,96 L572,102 L525,100 Z",
     // Iceland
     "M445,95 L462,92 L468,105 L458,115 L444,110 Z",
-    // Indonesia — Sumatra + Java + Borneo + Sulawesi + Lesser Sunda
-    // Islands. Old polygon labeled "Indonesia / Borneo" was at lat -10°
-    // to -20°S, lon 109-125°E — actually Bali/Sumbawa/Flores only.
-    // Sumatra, Jakarta, Medan, KL, and all of Borneo had no land under
-    // their dots. Now an elongated NW-SE archipelago blob.
-    "M762,232 L800,225 L830,232 L853,250 L842,270 L812,278 L780,273 L760,250 Z",
+    // (Indonesia merged into SE Asia polygon above — separate polygons
+    // double-filled through Sumatra/Borneo.)
     // Philippines — lat 5–19, lon 117–126
     "M835,200 L842,200 L848,215 L845,230 L838,232 L833,218 Z",
     // Papua New Guinea — lat −2 to −11, lon 140–151
