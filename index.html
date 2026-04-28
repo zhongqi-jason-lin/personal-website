@@ -127,13 +127,15 @@
 </script>
 <style>
   :root{
-    /* SF theme: all three roles resolve to Apple's SF family via the system stack.
-       --sf: body/UI (SF Pro Text at small sizes, SF Pro Display at large sizes — browser picks via optical sizing).
-       --display: same stack, used where we want heavier weight / tighter tracking for headings.
-       --mono: SF Mono on macOS, falls back to Menlo/Consolas elsewhere. */
+    /* SF theme: every typographic role uses the Apple SF Pro family via the
+       system font stack. --serif and --mono both alias --sf so the previous
+       three-register typography (SF Pro Text body / SF Pro Display heads /
+       SF Mono labels) collapses to a single SF Pro register. font-optical-
+       sizing:auto on body still lets the browser pick between SF Pro Text
+       and SF Pro Display by font-size, but the family is unified. */
     --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",system-ui,sans-serif;
-    --serif:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",system-ui,sans-serif;
-    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --serif:var(--sf);
+    --mono:var(--sf);
     --paper:#fafaf8; --paper-2:#f0efe9; --ink:#111; --ink-soft:#555; --ink-faint:#6f6d66; --rule:#e5e3dc;
     /* Light accent: editorial blue (5.6:1 on paper, passes WCAG AA). */
     --accent:oklch(0.50 0.18 252); --accent-soft:oklch(0.50 0.18 252 / 0.15);
@@ -362,6 +364,20 @@
       wasBottom=nowBottom;
     };
     const onScroll=()=>{
+      // Bail when a modal is active — body.modal-open is set by the modal's
+      // body-scroll-lock for the entire duration of the popup AND for a
+      // grace period past dismiss. While that flag is set, scroll events
+      // can fire as side-effects of the lock/unlock (body→position:fixed
+      // and back, scrollTo restoring the saved scroll position, iOS URL-bar
+      // re-layout). Letting onScroll add at-top here would trigger the
+      // edgePulse animation under the modal, blue-bleeding through the
+      // backdrop and persisting past dismiss when the timer expires.
+      // syncSilent keeps wasTop/wasBottom in step so the next real
+      // user scroll after the grace period uses correct prior state.
+      if(body.classList.contains('modal-open')){
+        syncSilent();
+        return;
+      }
       const {nowTop,nowBottom}=compute();
       // Edge-enter detection: only fire on false→true transitions driven by
       // a real scroll event, so the pulse plays exactly once per user-driven

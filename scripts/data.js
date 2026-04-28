@@ -88,4 +88,28 @@ window.JASON = {
     'Skill 7',
     'Skill 8',
   ],
+  // Three current research questions for the homepage's "Current research"
+  // section. Each entry renders as a card with a kind tag, a question, a
+  // blurb, and a `teaser` key resolved against scripts/teaser.js. Add or
+  // remove entries to taste — the renderer adapts.
+  research: [
+    {
+      kind: 'Theme 1',
+      title: 'A first research question — what are you asking right now?',
+      blurb: 'One paragraph framing the motivation, the approach, and what answering this would change. Aim for 2–4 sentences. The card is mostly text, so no need for a punchline format.',
+      teaser: 'diagram',
+    },
+    {
+      kind: 'Theme 2',
+      title: 'A second research question, ideally a different angle.',
+      blurb: 'Another paragraph at the same length and register. If you want a different visual register from your publications, add new keys to scripts/teaser.js and reference them here.',
+      teaser: 'network',
+    },
+    {
+      kind: 'Theme 3',
+      title: 'A third research question to round out the set.',
+      blurb: 'Three cards reads as a deliberate set; two reads as paired; one reads as a feature. The grid layout in v8_gallery.js will adapt.',
+      teaser: 'curves',
+    },
+  ],
 };

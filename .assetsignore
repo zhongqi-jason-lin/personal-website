@@ -20,3 +20,7 @@ project/
 *.md
 .DS_Store
 **/.DS_Store
+# Tooling-generated state — Claude Code config, brainstorm artifacts.
+# These are local-only and must never be reachable via the public site.
+.claude/
+.superpowers/

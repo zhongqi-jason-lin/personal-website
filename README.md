@@ -2,7 +2,7 @@
 
 A zero-build static template for a personal academic website, wired for privacy-respecting visitor + CV-download tracking on Cloudflare Workers.
 
-![Preview of the template deployed at zhongqilin.org](assets/preview.png?v=2)
+![Preview of the template deployed at zhongqilin.org](assets/preview.png?v=3)
 
 One live example deployed from this template: **[zhongqilin.org](https://zhongqilin.org)**.
 
@@ -21,8 +21,9 @@ One live example deployed from this template: **[zhongqilin.org](https://zhongqi
 - **Scroll-edge bloom** — a soft accent-color oval pulses once at the top/bottom when the reader hits a scroll limit, then fades out. Re-fires on every new edge arrival.
 - **Progressive-disclosure publications** — each card shows title + venue + authors by default; hover expands inline to reveal the abstract (desktop); mobile/touch shows the abstract statically so nothing's locked behind an unavailable hover gesture.
 - **Hand-drawn teaser schematics** — each publication gets an iconic SVG illustration that "paints itself in" via a staggered `stroke-dashoffset` reveal. Replays on hover (desktop), fires once on scroll-into-view and replays on tap (mobile) so the animation isn't locked behind a gesture the device can't perform.
+- **Current research section** — a three-card grid for the questions you're actively working on, sitting alongside Selected Works. Each card has its own SVG teaser (same `teaser.js` grammar as publications) and opens a focused modal popup on click — backdrop and Esc dismiss, body-scroll-lock with iOS-safe fixed-body workaround so the popup doesn't shift the page. Add, remove, or reorder `research[]` entries in `scripts/data.js`; the grid adapts.
 - **SEO / crawler-ready** — full Open Graph + Twitter Card (with 1200×630 branded card image), `@graph` JSON-LD with a `Person` + `ScholarlyArticle` nodes (the pattern Google Scholar prefers for author↔paper linking), a `<noscript>` shadow-content block that mirrors key content for non-JS crawlers (AI indexers, link-preview bots, Bing), `robots.txt`, and `sitemap.xml`.
-- **Mobile optimized** — dynamic viewport height, safe-area insets, dedicated breakpoints at ≤640 px and ≤380 px, stacked publication layout on narrow hall widths, blurb always expanded on touch. On narrow viewports the long left-plate sections (Provenance, Talks, Toolkit) become **tap-to-expand disclosures** so readers hit Selected Works without scrolling past two screenfuls of context; the first section stays open by default. Automatic hyphenation is disabled at mobile sizes so left-aligned body text wraps on whitespace rather than mid-word.
+- **Mobile optimized** — dynamic viewport height, safe-area insets, dedicated breakpoints at ≤640 px and ≤380 px, stacked publication layout on narrow hall widths, blurb always expanded on touch. The long left-plate sections (Provenance, Talks, Toolkit) are click-to-expand disclosures at all viewports: Provenance opens by default everywhere, "Where I've shown my work" opens by default on desktop only (collapses on mobile/touch to keep the identity column tight), Toolkit defaults collapsed. Automatic hyphenation is disabled at mobile sizes so left-aligned body text wraps on whitespace rather than mid-word.
 
 ![Watercolor-style visitor map](assets/map.png?v=2)
 
@@ -48,7 +49,7 @@ Almost everything you'll edit lives in **`scripts/data.js`**:
 - Name, role, email, social links
 - `headshot: 'assets/headshot.jpg'` — drop your photo into `assets/`, update the path if the extension differs
 - `cv: 'assets/your-cv.pdf'` — drop your CV at that path
-- `bio`, `interests`, `pubs`, `education`, `experience`, `talks`, `skills`
+- `bio`, `interests`, `research`, `pubs`, `education`, `experience`, `talks`, `skills`
 
 Accented phrases in the bio are driven by `.replace()` calls in `scripts/v8_gallery.js` — match the strings to phrases in your `bio` text.
 
@@ -71,7 +72,7 @@ The visitor world map (`scripts/vmap.js`) is Pacific-centered by default — cha
    ```bash
    openssl rand -hex 32 | npx wrangler secret put IP_SALT
    ```
-5. (Optional) **Add a custom domain** in `Workers & Pages → <project> → Settings → Domains & Routes`. Cloudflare auto-inserts DNS if the domain's zone is on Cloudflare DNS.
+5. (Optional) **Add a custom domain** in `Workers & Pages → <project> → Settings → Domains & Routes`. Cloudflare auto-inserts DNS if the domain's zone is on Cloudflare DNS. If you'll serve from both apex and `www` (e.g. `example.com` and `www.example.com`), set `APEX_HOST` at the top of `worker/index.js` to your apex domain (no scheme, no `www`) — the Worker 301-redirects the `www` host to the apex so Search Console doesn't flag the duplicate as "Alternate page with proper canonical tag." Leave the constant empty/null to skip the redirect.
 6. **Register the site in Google Search Console** at <https://search.google.com/search-console>. Uncomment the `<meta name="google-site-verification">` tag in `index.html` and paste in the token, then submit `sitemap.xml`.
 
 ## Privacy posture
@@ -95,7 +96,7 @@ The visit / CV tracking is designed to be data-minimal:
 │   └── your-cv.pdf         # Not committed — drop yours here
 ├── scripts/
 │   ├── data.js             # ALL your content lives here
-│   ├── teaser.js           # SVG teasers for each publication
+│   ├── teaser.js           # SVG teasers for each publication and research card
 │   ├── vmap.js             # World map + /api/visits client
 │   └── v8_gallery.js       # Main renderer (CSS + DOM)
 ├── worker/

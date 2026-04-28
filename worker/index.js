@@ -297,9 +297,28 @@ async function getCvStats(env) {
   return { total, countries: countries.length, byCountry };
 }
 
+// Apex hostname for the canonical 301 redirect. Set this to the domain you
+// serve the site from (no scheme, no www). The redirect collapses the
+// www subdomain so Google Search Console doesn't report duplicate URLs as
+// "Alternate page with proper canonical tag." Leave as null/empty to skip
+// the redirect entirely (e.g. while previewing on workers.dev).
+const APEX_HOST = 'your-domain.example';
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    // Canonicalize host — 301 www.<apex> → <apex>. Without this, both hosts
+    // serve identical HTML with <link rel="canonical"> pointing to the apex,
+    // which Google Search Console reports as "Alternate page with proper
+    // canonical tag." Functionally harmless (Google indexes the canonical),
+    // but a 301 collapses the duplicate entirely so only one URL is ever
+    // crawled. Preserve path + query so deep links (?utm_*, etc.) carry
+    // through.
+    if (APEX_HOST && url.hostname === 'www.' + APEX_HOST) {
+      url.hostname = APEX_HOST;
+      return Response.redirect(url.toString(), 301);
+    }
 
     if (url.pathname === '/api/visits' && request.method === 'GET') {
       const cities = await getVisits(env);

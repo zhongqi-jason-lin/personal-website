@@ -6,12 +6,16 @@
 // you like. Each key here (diagram / network / curves) is what you reference
 // in scripts/data.js under `pubs[].teaser`.
 window.TEASER = function(kind){
-  const caption = (labels) => {
+  // fontSize in SVG user units. Default 7 is tuned for the larger Current-
+  // research cards (~420px wide at desktop); the Selected-works teasers
+  // live in a ~660px container, so callers can pass fontSize=5 to land the
+  // rendered text at the same apparent pixel size across sections.
+  const caption = (labels, fontSize = 7) => {
     const n = labels.length;
     // Anchor first label to the left edge, last to the right edge, middles centered.
     // Using text-anchor lets long labels use the full caption strip without overlapping.
     return `<line x1="12" y1="86" x2="188" y2="86" stroke="currentColor" stroke-width=".3" opacity=".35"/>
-      <g font-family="ui-monospace,monospace" font-size="7" fill="currentColor" letter-spacing=".3">
+      <g font-family="ui-monospace,monospace" font-size="${fontSize}" fill="currentColor" letter-spacing=".3">
         ${labels.map((l,i)=>{
           let x, anchor;
           if (n === 1) { x = 100; anchor = 'middle'; }
