@@ -5,17 +5,24 @@
 // Three generic schemas that stand in for most paper types — swap or extend as
 // you like. Each key here (diagram / network / curves) is what you reference
 // in scripts/data.js under `pubs[].teaser`.
-window.TEASER = function(kind){
-  // fontSize in SVG user units. Default 7 is tuned for the larger Current-
-  // research cards (~420px wide at desktop); the Selected-works teasers
-  // live in a ~660px container, so callers can pass fontSize=5 to land the
-  // rendered text at the same apparent pixel size across sections.
-  const caption = (labels, fontSize = 7) => {
+window.TEASER = function(kind, fontSize){
+  // fontSize is in SVG user units (200-wide viewBox), so the rendered
+  // caption pixel size = fontSize / 200 × teaser_width_in_css_px.
+  // Current research and Selected works now share the same row-regime
+  // column track (64px / minmax(180,260) / 1fr) so the default 7 produces
+  // matching caption sizes across the two sections at every width where
+  // both are in row mode. Research's wide-desktop 3-col card grid renders
+  // teasers a bit wider (~250-300px depending on hall width); the
+  // resulting caption difference vs row-mode works is under ~15%.
+  // The optional outer param lets callers override the default when a
+  // future layout deliberately changes the rendered teaser width for one
+  // section.
+  const caption = (labels, fs = fontSize ?? 7) => {
     const n = labels.length;
     // Anchor first label to the left edge, last to the right edge, middles centered.
     // Using text-anchor lets long labels use the full caption strip without overlapping.
     return `<line x1="12" y1="86" x2="188" y2="86" stroke="currentColor" stroke-width=".3" opacity=".35"/>
-      <g font-family="ui-monospace,monospace" font-size="${fontSize}" fill="currentColor" letter-spacing=".3">
+      <g font-family="ui-monospace,monospace" font-size="${fs}" fill="currentColor" letter-spacing=".3">
         ${labels.map((l,i)=>{
           let x, anchor;
           if (n === 1) { x = 100; anchor = 'middle'; }

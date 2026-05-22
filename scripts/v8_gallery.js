@@ -525,16 +525,17 @@
   }
 
   /* ── MOCK: Selected works rows ────────────────────────────────────────────
-     3-column grid [Exhibit 01 | teaser | title+blurb] — same pattern as
-     Current research. .no sits next to the teaser instead of stacked
-     above the spec; teaser column is 220–320px (larger than the prior
-     ~256px from the .spec 1fr:2fr ratio); text column takes the rest with
-     a 66ch readability cap on the blurb (.spec p already has max-width).
-     display:contents on .spec lets its two children participate as direct
-     grid items of .exhibit:not(.research). */
+     3-column grid [Exhibit 01 | teaser | title+blurb] — column track is
+     intentionally identical to Current research's ≤1300 row regime
+     (64px / minmax(180,260) / 1fr, gap 1.25rem) so the two sections line
+     up vertically — left rail + teaser column + text column — at every
+     width where both are in row mode. Research switches into its 3-col
+     card grid above 1300px (its column flexibility); works stays in row
+     mode at all desktop widths. display:contents on .spec lets its two
+     children participate as direct grid items of .exhibit:not(.research). */
   .vF .exhibit:not(.research){
     grid-template-columns:64px minmax(180px, 260px) 1fr;
-    gap:1.5rem;
+    gap:1.25rem;
     padding:1.75rem 2.75rem;
     align-items:start;
   }
@@ -553,17 +554,15 @@
     font-size:clamp(15px, calc(12.5px + 0.28vw), 16.5px);line-height:1.55;margin:.35rem 0 .65rem;
   }
   .vF .exhibit:not(.research) .spec .au{font-size:13px;line-height:1.5}
-  /* Narrow desktop (641–1100): tighter teaser column since the plate is
-     stacked above the hall (per @media(max-width:1230px) elsewhere) but
-     the hall card width can vary widely. Keep the 3-col [no | teaser |
-     text] pattern; just tighten gaps. */
-  @media(max-width:1100px){
-    .vF .exhibit:not(.research){
-      grid-template-columns:56px minmax(160px, 220px) 1fr;
-      gap:1.25rem;
-    }
-    .vF .exhibit:not(.research) .no{padding-top:0}
-  }
+  /* No narrow-desktop column override here on purpose. The previous
+     @media(max-width:1100px) block tightened works to 56px / minmax(160,220)
+     while Current research's ≤1300 row regime stayed at 64px / minmax(180,260),
+     which made the two sections render their teasers at different widths
+     in the same window (top ~20% wider, left rail 8px wider). With both
+     sections sharing one row spec across the full 641–desktop range, the
+     teasers stay coherent — same column track, same caption pixel size
+     (caption font-size is in SVG viewBox units, so it scales linearly
+     with the rendered teaser width). */
   @media(max-width:640px){
     /* Mobile: vertical stack — 3-col doesn't fit in <640px width. */
     .vF .exhibit:not(.research){
